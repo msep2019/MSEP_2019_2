@@ -92,6 +92,7 @@ class RetrievingDataThread(threading.Thread):
                 data_dict["Magnetometer"] = self._sensor.magnetometer.read()
                 data_dict["Gyroscope"] = self._sensor.gyroscope.read()
                 data_dict["light"] = self._sensor.lightmeter.read()
+                data_dict["battery"] = self._sensor.battery.read()
                 json_str = json.dumps(data_dict)
                 length = self._redis.lpush(self._sensor_info.addr, json_str)
                 if length > 100:
@@ -130,6 +131,8 @@ class RetrievingDataThread(threading.Thread):
                 self._sensor.keypress.enable()
                 self._sensor.setDelegate(sensortag.KeypressDelegate())
                 self._sensor.lightmeter.enable()
+                self._sensor.battery.enable()
+
                 time.sleep(1.0)
                 self._retry_count = 0
             except Exception as e:
