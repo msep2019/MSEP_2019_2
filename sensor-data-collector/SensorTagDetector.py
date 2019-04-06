@@ -18,7 +18,7 @@ def main():
     duration = 10.0
     current_device_id = 0
     count_test = 0
-
+    _redis = redis.StrictRedis(host="localhost", port=6379, db=0)
     print("Try to detect sensors each %s seconds" %duration)
     device_info_list = scanner.scan(5)
 
@@ -31,6 +31,7 @@ def main():
                                                    current_device_id, device)
                 current_device_id += 1
                 device_list.append(device.addr)
+                _redis.lpush("device_list", device.addr)
                 print(device_list)
                 data_thread.start()
             else:
@@ -41,13 +42,14 @@ def main():
                 print(device_list)
                 if not_existed:
                     device_list.append(device.addr)
+                    _redis.lpush("device_list", device.addr)
                     data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
                                                        current_device_id, device)
                     current_device_id += 1
                     data_thread.start()
     time.sleep(duration)
-    time.sleep(10)
-    scanner = btle.Scanner()
+    # time.sleep(10)
+    # scanner = btle.Scanner()
     # device_info_list = scanner.scan(5)
 
 
@@ -88,9 +90,9 @@ class RetrievingDataThread(threading.Thread):
                 data_dict["temperature"] = self._sensor.IRtemperature.read()
                 data_dict["humidity"] = self._sensor.humidity.read()
                 data_dict["barometer"] = self._sensor.barometer.read()
-                data_dict["Accelerometer"] = self._sensor.accelerometer.read()
-                data_dict["Magnetometer"] = self._sensor.magnetometer.read()
-                data_dict["Gyroscope"] = self._sensor.gyroscope.read()
+                data_dict["accelerometer"] = self._sensor.accelerometer.read()
+                data_dict["magnetometer"] = self._sensor.magnetometer.read()
+                data_dict["gyroscope"] = self._sensor.gyroscope.read()
                 data_dict["light"] = self._sensor.lightmeter.read()
                 data_dict["battery"] = self._sensor.battery.read()
                 json_str = json.dumps(data_dict)
