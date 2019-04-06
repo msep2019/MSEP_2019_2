@@ -31,7 +31,7 @@ class SensorTagInfo(Resource):
         data_dict = {}
         tmp_devices = []
         for device in device_info:
-            tmp_devices.append(json.loads(device))
+            tmp_devices.append(json.loads(device.decode('utf-8')))
         data_dict["data"] = tmp_devices
         # print(tmp_devices)
         return data_dict
@@ -40,4 +40,4 @@ api.add_resource(DeviceList, '/devices')
 api.add_resource(SensorTagInfo, '/device/info/all/<string:device_id>')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=True)
