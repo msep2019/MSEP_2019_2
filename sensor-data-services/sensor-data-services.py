@@ -8,11 +8,11 @@ api = Api(app)
 
 _redis = redis.StrictRedis(host="localhost", port=6379, db=0)
 
-class HelloWorld(Resource):
-    def get(self):
-        return {'hello': 'world'}
-
-api.add_resource(HelloWorld, '/')
+#class HelloWorld(Resource):
+#    def get(self):
+#        return {'hello': 'world'}
+#
+#api.add_resource(HelloWorld, '/')
 
 class DeviceList(Resource):
     def get(self):
@@ -20,7 +20,7 @@ class DeviceList(Resource):
         data_dict = {}
         tmp_devices = []
         for device in device_list:
-            tmp_devices.append(device.decode('utf-8'))
+            tmp_devices.append(device.decode('utf-8','ignore'))
         data_dict["device_list"] = tmp_devices
         print(device_list)
         return data_dict
@@ -31,7 +31,7 @@ class SensorTagInfo(Resource):
         data_dict = {}
         tmp_devices = []
         for device in device_info:
-            tmp_devices.append(json.loads(device.decode('utf-8')))
+            tmp_devices.append(json.loads(device.decode('utf-8','ignore')))
         data_dict["data"] = tmp_devices
         # print(tmp_devices)
         return data_dict
