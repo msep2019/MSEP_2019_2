@@ -1,9 +1,6 @@
-FROM ubuntu:18.04
-RUN apt-get update
-RUN apt-get install -y python3 python3-dev python3-pip nginx
-RUN pip3 install uwsgi
+FROM python:3.6-alpine
 COPY ./ ./app
 WORKDIR ./app
-RUN ls /app/ -a && pip3 install -r ./docker/requirements.txt
-COPY ./nginx.conf /etc/nginx/sites-enabled/default
+RUN pip3 install -r ./docker/requirements.txt
+COPY ./docker/development/conf.ini ./app/
 CMD ["python3", "iot-services.py"]
