@@ -6,13 +6,20 @@ import time
 import json
 import redis
 from threading import Timer, Thread, Event
+import sqlite3
+import configparser
 
+config = configparser.ConfigParser()
+config.read('conf.ini')
 
 def main():
+    print("DB url", config['SQLiteDB']['url'])
     interval = 180
     stopFlag = Event()
     timerTask = TimerTask(stopFlag, interval)
     timerTask.start()
+
+    # TODO: Adding configured MAC address to a list
 
 
 class TimerTask(Thread):
@@ -34,29 +41,35 @@ class TimerTask(Thread):
                 device_info_list = scanner.scan(5)
 
                 for device in device_info_list:
-                    device_name = device.getValueText(9)
-                    print("Device addr ", device.addr, "name ", device_name)
+                    conn = sqlite3.connect(config['SQLiteDB']['url'])
+                    c = conn.cursor()
+                    t = (device.addr,)
+                    c.execute('SELECT * FROM sensor WHERE mac=? LIMIT 1', t)
+                    row = c.fetchone()
+                    c.close()
+                    if (row is not None):
+                        device_name = device.getValueText(9)
+                        print("Device addr ", device.addr, "name ", device_name)
 
-                    if (device_name is not None) and ("SensorTag" in device_name):
-
-                        if len(device_list) == 0:
-                            data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
-                                                               current_device_id, device)
-                            current_device_id += 1
-                            device_list.append(device.addr)
-                            data_thread.start()
-                        else:
-                            not_existed = True
-                            for tmp_run in device_list:
-                                if device.addr == tmp_run:
-                                    not_existed = False
-
-                            if not_existed:
-                                device_list.append(device.addr)
+                        if (device_name is not None) and ("SensorTag" in device_name):
+                            if len(device_list) == 0:
                                 data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
                                                                    current_device_id, device)
                                 current_device_id += 1
+                                device_list.append(device.addr)
                                 data_thread.start()
+                            else:
+                                not_existed = True
+                                for tmp_run in device_list:
+                                    if device.addr == tmp_run:
+                                        not_existed = False
+
+                                if not_existed:
+                                    device_list.append(device.addr)
+                                    data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
+                                                                       current_device_id, device)
+                                    current_device_id += 1
+                                    data_thread.start()
                 for tmp in device_list:
                     _redis.sadd("device_list", tmp)
             except Exception as e:
@@ -157,18 +170,27 @@ class RetrievingDataThread(threading.Thread):
     def push_to_mqtt(self, data_dict):
         json_str = json.dumps(self.generate_senml_messages(data_dict))
         # print("SENML ", json_str)
+        # device_id = "bab0170f-5d34-48e0-8b10-22c40f150377"
+        # device_key = "29200cc0-c191-428e-ae06-cec233fef9a1"
+        # channel_id = "74b92194-c101-472b-b033-e495cfddcb79"
 
-        # hard code device id and key, modify later
-        device_id = "bab0170f-5d34-48e0-8b10-22c40f150377"
-        device_key = "29200cc0-c191-428e-ae06-cec233fef9a1"
-        broker_address = "localhost"
-        channel_id = "74b92194-c101-472b-b033-e495cfddcb79"
-        mqtt_client = mqtt.Client()
-        mqtt_client.username_pw_set(device_id, device_key)
-        mqtt_client.connect(broker_address)
-        mqtt_topic = "channels/" + channel_id + "/messages"
-        mqtt_client.publish(topic=mqtt_topic, payload=json_str)
-        mqtt_client.disconnect()
+        # get broker address
+        broker_address = config['MQTT']['broker']
+        # get device id, key and channel from SQLite
+        conn = sqlite3.connect(config['SQLiteDB']['url'])
+        c = conn.cursor()
+        t = (data_dict['MAC'],)
+        c.execute('SELECT * FROM sensor WHERE mac=?', t)
+        for row in c:
+            mqtt_client = mqtt.Client()
+            mqtt_client.username_pw_set(row[1], row[2])
+            mqtt_client.connect(broker_address)
+            mqtt_topic = "channels/" + row[3] + "/messages"
+            mqtt_client.publish(topic=mqtt_topic, payload=json_str)
+            mqtt_client.disconnect()
+        c.close()
+
+
 
 
     def generate_senml_messages(self, data_dict):
