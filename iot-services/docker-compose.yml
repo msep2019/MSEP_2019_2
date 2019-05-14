@@ -8,10 +8,8 @@ services:
       context: .
     ports:
      - "5000:80"
-    volumes:
-     - .:/code
-  production:
 
+  production:
     # will build ./docker/production/Dockerfile
     build:
       dockerfile: ./docker/production/Dockerfile
