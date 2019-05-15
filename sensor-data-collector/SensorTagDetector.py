@@ -19,8 +19,6 @@ def main():
     timerTask = TimerTask(stopFlag, interval)
     timerTask.start()
 
-    # TODO: Adding configured MAC address to a list
-
 
 class TimerTask(Thread):
     def __init__(self, event, duration):
@@ -34,42 +32,65 @@ class TimerTask(Thread):
             try:
                 device_list = []
                 current_device_id = 0
-                scanner = btle.Scanner()
-
+                # scanner = btle.Scanner()
+                # device_info_list = scanner.scan(15)
                 _redis = redis.StrictRedis(host="localhost", port=6379, db=0)
                 print("Try to detect sensors each %s seconds" % self.duration)
-                device_info_list = scanner.scan(5)
+                # search configured devices in db
+                conn = sqlite3.connect(config['SQLiteDB']['url'])
+                c = conn.cursor()
+                c.execute('SELECT DISTINCT mac FROM sensor')
+                for row in c:
+                    device_mac = row[0]
+                    if len(device_list) == 0:
+                        data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
+                                                           current_device_id, device_mac)
+                        current_device_id += 1
+                        device_list.append(device_mac)
+                        data_thread.start()
+                    else:
+                        not_existed = True
+                        for tmp_run in device_list:
+                            if device_mac == tmp_run:
+                                not_existed = False
 
-                for device in device_info_list:
-                    conn = sqlite3.connect(config['SQLiteDB']['url'])
-                    c = conn.cursor()
-                    t = (device.addr,)
-                    c.execute('SELECT * FROM sensor WHERE mac=? LIMIT 1', t)
-                    row = c.fetchone()
-                    c.close()
-                    if (row is not None):
-                        device_name = device.getValueText(9)
-                        print("Device addr ", device.addr, "name ", device_name)
-
-                        if (device_name is not None) and ("SensorTag" in device_name):
-                            if len(device_list) == 0:
-                                data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
-                                                                   current_device_id, device)
-                                current_device_id += 1
-                                device_list.append(device.addr)
-                                data_thread.start()
-                            else:
-                                not_existed = True
-                                for tmp_run in device_list:
-                                    if device.addr == tmp_run:
-                                        not_existed = False
-
-                                if not_existed:
-                                    device_list.append(device.addr)
-                                    data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
-                                                                       current_device_id, device)
-                                    current_device_id += 1
-                                    data_thread.start()
+                        if not_existed:
+                            device_list.append(device_mac)
+                            data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
+                                                               current_device_id, device_mac)
+                            current_device_id += 1
+                            data_thread.start()
+                c.close()
+                # for device in device_info_list:
+                #     conn = sqlite3.connect(config['SQLiteDB']['url'])
+                #     c = conn.cursor()
+                #     t = (device.addr,)
+                #     c.execute('SELECT * FROM sensor WHERE mac=? LIMIT 1', t)
+                #     row = c.fetchone()
+                #     c.close()
+                #     if (row is not None):
+                #         device_name = device.getValueText(9)
+                #         print("Device addr ", device.addr, "name ", device_name)
+                #
+                #         if (device_name is not None) and ("SensorTag" in device_name):
+                #             if len(device_list) == 0:
+                #                 data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
+                #                                                    current_device_id, device)
+                #                 current_device_id += 1
+                #                 device_list.append(device.addr)
+                #                 data_thread.start()
+                #             else:
+                #                 not_existed = True
+                #                 for tmp_run in device_list:
+                #                     if device.addr == tmp_run:
+                #                         not_existed = False
+                #
+                #                 if not_existed:
+                #                     device_list.append(device.addr)
+                #                     data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
+                #                                                        current_device_id, device)
+                #                     current_device_id += 1
+                #                     data_thread.start()
                 for tmp in device_list:
                     _redis.sadd("device_list", tmp)
             except Exception as e:
@@ -79,23 +100,23 @@ class TimerTask(Thread):
                 break
 
 class RetrievingDataThread(threading.Thread):
-    _sensor_info = None
+    _device_mac = None
     _exit_flag = False
     _sensor = None
     _retry_count = 0
     _redis = None
 
-    def __init__(self, threadID, name, counter, sensor_info):
+    def __init__(self, threadID, name, counter, device_mac):
         threading.Thread.__init__(self)
         self.threadID = threadID
         self.name = name
         self.counter = counter
-        self._sensor_info = sensor_info
+        self._device_mac = device_mac
 
         self._redis = redis.StrictRedis(host="localhost", port=6379, db=0)
     def run(self):
         print(">>>>>...")
-        print(self._sensor_info)
+        print(self._device_mac)
         self._reconnect()
 
         while not self._exit_flag and self._retry_count < 5:
@@ -106,7 +127,7 @@ class RetrievingDataThread(threading.Thread):
                     current_time = time.time()
                     data_dict = {}
                     data_dict["current_time"] = current_time
-                    data_dict["MAC"] = self._sensor_info.addr
+                    data_dict["MAC"] = self._device_mac
                     data_dict["temperature"] = self._sensor.IRtemperature.read()
                     data_dict["humidity"] = self._sensor.humidity.read()
                     data_dict["barometer"] = self._sensor.barometer.read()
@@ -128,7 +149,7 @@ class RetrievingDataThread(threading.Thread):
                 if self._retry_count < 5:
                     self._reconnect()
 
-            time.sleep(5.0)
+            time.sleep(1.0)
 
     def set_exit_flag(self, exit_flag):
         self._exit_flag = exit_flag
@@ -139,10 +160,10 @@ class RetrievingDataThread(threading.Thread):
                 self._sensor.disconnect()
                 self._sensor = None
 
-            if self._sensor is None and self._sensor_info is not None:
+            if self._sensor is None and self._device_mac is not None:
 
                 print("Try to connect SensorTag...")
-                self._sensor = sensortag.SensorTag(self._sensor_info.addr)
+                self._sensor = sensortag.SensorTag(self._device_mac.upper())
 
                 # Enabling selected sensors
                 self._sensor.IRtemperature.enable()
@@ -163,9 +184,9 @@ class RetrievingDataThread(threading.Thread):
 
     def push_to_redis(self, data_dict):
         json_str = json.dumps(data_dict)
-        length = self._redis.lpush(self._sensor_info.addr, json_str)
+        length = self._redis.lpush(self._device_mac, json_str)
         if length > 100:
-            self._redis.rpop(self._sensor_info.addr)
+            self._redis.rpop(self._device_mac)
 
     def push_to_mqtt(self, data_dict):
         json_str = json.dumps(self.generate_senml_messages(data_dict))
