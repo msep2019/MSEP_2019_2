@@ -1,0 +1,20 @@
+version: '3.3'
+services:
+  development:
+
+    # will build ./docker/development/Dockerfile
+    build:
+      dockerfile: ./docker/development/Dockerfile
+      context: .
+    ports:
+     - "5000:5000"
+    volumes:
+     - .:/code
+#  production:
+#
+#    # will build ./docker/production/Dockerfile
+#    build:
+#      dockerfile: ./docker/production/Dockerfile
+#      context: .
+#    ports:
+#      - "5000:80"
