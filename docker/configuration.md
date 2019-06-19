@@ -14,4 +14,9 @@
    ```
 ### 3. Open Docker installation package
 
-# Docker installation for Ubuntu
+# Docker installation for Ubuntu:
+### 1. Check Ubuntu kernel version
+    ```
+    uname -r
+    ```
+    Docker is support by the kernel version which is at least 3.10
