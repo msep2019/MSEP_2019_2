@@ -16,7 +16,6 @@
 
 # Docker installation for Ubuntu:
 ### 1. Check Ubuntu kernel version. Docker is support by the kernel version which is at least 3.10.
-    ```
     uname -r //kernel version
-    ```
+    
     
