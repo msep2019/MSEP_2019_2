@@ -1,5 +1,5 @@
-#Docker installation for Windows:
-###1. Enable Hyper-V and Containers:
+# Docker installation for Windows:
+### 1. Enable Hyper-V and Containers:
    1) Open "Control Panel"
    2) Select and open "Programs"
    3) Open "Turn Windows features on or off"
@@ -8,10 +8,10 @@
       ```
       bcdedit /set hypervisorlauchtype Auto
       ```
-###2. Download Docker installation package
+### 2. Download Docker installation package
    ```
    https://get.daocloud.io/docker-install/windows
    ```
-###3. Open Docker installation package
+### 3. Open Docker installation package
 
-#Docker installation for Ubuntu
+# Docker installation for Ubuntu
