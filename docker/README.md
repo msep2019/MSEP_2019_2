@@ -4,6 +4,6 @@
    
 ## backup.md
    
-   The file presents the method to package and backup particular docker containter, and create corresponding image to the local disk.
+   The file presents the method to package and backup particular docker container, and create corresponding image to the local disk.
    And presenting the approach to restore the image, execute the docker containter on different laptop
    
