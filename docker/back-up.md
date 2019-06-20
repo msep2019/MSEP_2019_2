@@ -17,8 +17,16 @@
    sudo docker save -o [name.tar] [name]
    ```
 # Restore Container and Image
-## For windows
 ### Load docker image
    ```
    sudo docker load -i [name.tar]
+   ```
+### Run docker container via re-loaded image
+   ```
+   sudo docker run -d -p 80:80 [image name]
+   ```
+### Stop & start the container
+   ```
+   sudo docker start [container ID] //start
+   sudo docker stop [container ID] //stop
    ```
