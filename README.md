@@ -1,6 +1,6 @@
 # MSEP_2019_2
 
-A repository for IoT solution.
+The repository for IoT solution.
 Structure of repository:
 
 **Projects deployed on IoT Gateway (Raspberry Pi)**
@@ -24,7 +24,7 @@ Structure of repository:
 - document: contains all related documents
 
 **Main technologies**
-
+- Operating systems: Linux-based OS
 - Programming language: Python3
 - Package solution: Docker image
 - Database: Redis, MySQL, SQLite, InfluxDB
