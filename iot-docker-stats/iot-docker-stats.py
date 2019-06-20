@@ -7,6 +7,7 @@ import http.client
 config = configparser.ConfigParser()
 config.read('conf.ini')
 
+
 def main():
     # client = docker.DockerClient(base_url='http://127.0.0.1:2375')
     client = docker.DockerClient(config["docker"]["url"])
@@ -18,11 +19,13 @@ def main():
             all_stats.extend(generateSenMLData(stats))
         sendDataToService(all_stats)
 
+
 def sendDataToService(data):
     client = http.client.HTTPConnection(config['iot-service']['host'], config['iot-service']['port'])
     headers = {'Content-type': 'application/json'}
     client.request(method="POST", url=config['iot-service']['url'], body=json.dumps(data), headers=headers)
     client.getresponse()
+
 
 def generateSenMLData(data):
     container_name = str(data["name"])[1:]
@@ -46,6 +49,7 @@ def generateSenMLData(data):
     senml_message.append(memory)
     return senml_message
 
+
 def calculate_cpu_percent(data):
     cpu_count = len(data["cpu_stats"]["cpu_usage"]["percpu_usage"])
     cpu_percent = 0.0
@@ -56,6 +60,7 @@ def calculate_cpu_percent(data):
     if system_delta > 0.0:
         cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
     return cpu_percent
+
 
 if __name__ == "__main__":
     main()
