@@ -1,5 +1,4 @@
 from bluepy import sensortag
-from bluepy import btle
 import paho.mqtt.client as mqtt
 import threading
 import time
@@ -11,6 +10,7 @@ import configparser
 
 config = configparser.ConfigParser()
 config.read('conf.ini')
+retrieving_rate = float(config['general']['retrieving-rate'])
 
 def main():
     print("DB url", config['SQLiteDB']['url'])
@@ -61,36 +61,6 @@ class TimerTask(Thread):
                             current_device_id += 1
                             data_thread.start()
                 c.close()
-                # for device in device_info_list:
-                #     conn = sqlite3.connect(config['SQLiteDB']['url'])
-                #     c = conn.cursor()
-                #     t = (device.addr,)
-                #     c.execute('SELECT * FROM sensor WHERE mac=? LIMIT 1', t)
-                #     row = c.fetchone()
-                #     c.close()
-                #     if (row is not None):
-                #         device_name = device.getValueText(9)
-                #         print("Device addr ", device.addr, "name ", device_name)
-                #
-                #         if (device_name is not None) and ("SensorTag" in device_name):
-                #             if len(device_list) == 0:
-                #                 data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
-                #                                                    current_device_id, device)
-                #                 current_device_id += 1
-                #                 device_list.append(device.addr)
-                #                 data_thread.start()
-                #             else:
-                #                 not_existed = True
-                #                 for tmp_run in device_list:
-                #                     if device.addr == tmp_run:
-                #                         not_existed = False
-                #
-                #                 if not_existed:
-                #                     device_list.append(device.addr)
-                #                     data_thread = RetrievingDataThread(current_device_id, "Thread - " + str(current_device_id),
-                #                                                        current_device_id, device)
-                #                     current_device_id += 1
-                #                     data_thread.start()
                 for tmp in device_list:
                     _redis.sadd("device_list", tmp)
             except Exception as e:
@@ -98,6 +68,7 @@ class TimerTask(Thread):
                 print(e)
             if self.stopped.wait(self.duration):
                 break
+
 
 class RetrievingDataThread(threading.Thread):
     _device_mac = None
@@ -114,6 +85,7 @@ class RetrievingDataThread(threading.Thread):
         self._device_mac = device_mac
 
         self._redis = redis.StrictRedis(host="localhost", port=6379, db=0)
+
     def run(self):
         print(">>>>>...")
         print(self._device_mac)
@@ -149,7 +121,7 @@ class RetrievingDataThread(threading.Thread):
                 if self._retry_count < 5:
                     self._reconnect()
 
-            time.sleep(1.0)
+            time.sleep(retrieving_rate)
 
     def set_exit_flag(self, exit_flag):
         self._exit_flag = exit_flag
@@ -210,9 +182,6 @@ class RetrievingDataThread(threading.Thread):
             mqtt_client.publish(topic=mqtt_topic, payload=json_str)
             mqtt_client.disconnect()
         c.close()
-
-
-
 
     def generate_senml_messages(self, data_dict):
         senml_message = []

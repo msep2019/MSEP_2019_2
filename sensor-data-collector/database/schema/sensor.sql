@@ -1,0 +1,1 @@
+CREATE TABLE sensor(mac String NOT NULL, thing_id String, thing_key String, channel_id String, PRIMARY KEY(mac, channel_id));
