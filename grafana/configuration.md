@@ -9,3 +9,7 @@
   Grafana support a variety of data source
   
   ![index](https://github.com/msep2019/MSEP_2019_2/raw/master/grafana/images/10.png)
+  
+  The influxdb connection with grafana as below. Name can be self-defining. URL will use the default one, Broweser will be picked for 'Access'. Database detaill should be the same as the database configuration on the laptop.
+  
+  ![index](https://github.com/msep2019/MSEP_2019_2/raw/master/grafana/images/9.png)
