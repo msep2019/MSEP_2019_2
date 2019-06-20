@@ -8,4 +8,4 @@
 ## Grafana - Data source 
   Grafana support a variety of data source
   
-  ![index](https://github.com/msep2019/MSEP_2019_2/tree/master/grafana/images/10.png)
+  ![index](https://github.com/msep2019/MSEP_2019_2/raw/master/grafana/images/10.png)
