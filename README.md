@@ -30,12 +30,12 @@ Structure of repository:
 - Database: Redis, MySQL, SQLite, InfluxDB
 - Protocols: HTTP, MQTT
 
-**Docker 
+**Docker**
 
 - document -> configuration.md : docker installation and configuration for Windows OS and Ubuntu
 - document -> back-up.md : docker container backup and restore & docker images saving and restore
 
-**Grafana
+**Grafana**
 
 - document: Grafana installation via Docker, Grafana dashboard configuration and alert setting up
 
