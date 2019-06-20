@@ -1,6 +1,6 @@
 # MSEP_2019_2
 
-The repository for IoT solution.
+A repository for IoT solution.
 Structure of repository:
 
 **Projects deployed on IoT Gateway (Raspberry Pi)**
@@ -24,9 +24,18 @@ Structure of repository:
 - document: contains all related documents
 
 **Main technologies**
-- Operating systems: Linux-based OS
+
 - Programming language: Python3
 - Package solution: Docker image
 - Database: Redis, MySQL, SQLite, InfluxDB
 - Protocols: HTTP, MQTT
+
+**Docker 
+
+- document -> configuration.md : docker installation and configuration for Windows OS and Ubuntu
+- document -> back-up.md : docker container backup and restore & docker images saving and restore
+
+**Grafana
+
+- document: Grafana installation via Docker, Grafana dashboard configuration and alert setting up
 
