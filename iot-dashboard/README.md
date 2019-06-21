@@ -42,5 +42,4 @@ This is IOT dashboard developed in python using flask
 
 # IoT Dashboard Design 
 
-![GitHub Logo](MSEP_2019_2/iot-dashboard/img1.png)
-Format: ![Alt Text](url)
+![alt text](https://github.com/msep2019/MSEP_2019_2/blob/master/iot-dashboard/img1.png)
