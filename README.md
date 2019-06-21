@@ -39,3 +39,12 @@ Structure of repository:
 
 - document: Grafana installation via Docker, Grafana dashboard configuration and alert setting up
 
+**Current features**
+- Allow connecting from Raspberry Pi to multiple SensorTag and retrieving 8 types of sensor data.
+- Allow developers to push dummy data for testing by using HTTP requests on IoT Service.
+- Allow users/application to interact with InfluxDB to get neccessary data
+- Monitor current status of sensor data on Raspberry Pi
+- Monitor docker statistics
+- Grafana configuration for retrieving data from InfluxDB and create proper visualizations. Instructions to create Alerts on Grafana and send messages to Slack or send emails to users.
+- A simple dashboard built on Python and Flask framework.
+
