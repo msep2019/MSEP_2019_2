@@ -34,7 +34,7 @@
   
   ![index](https://github.com/msep2019/MSEP_2019_2/raw/master/grafana/images/8.png)
   
-  **Slack Alert setup and Grafana Alert setup
+  **Slack Alert setup and Grafana Alert setup**
   
   Before setting up on Grafana, sign into your own slack or create a new workspace
   ```
