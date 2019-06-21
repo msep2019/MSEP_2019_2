@@ -1,4 +1,4 @@
-Project to support IoT services, currently provide service for adding sensor data.
+A RESTful service to support IoT Testbed feature, currently provide service for adding sensor data.
 
 **Required libraries**
 
