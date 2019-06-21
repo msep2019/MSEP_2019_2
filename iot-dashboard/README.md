@@ -8,15 +8,15 @@ This is IOT dashboard developed in python using flask
 
   ## STEP 1
 
-    ### Start mainflux
+   ### Start mainflux
 
   ## STEP 2
 
-    ### Start sensor data collector on rapsberry pi
+   ### Start sensor data collector on rapsberry pi
 
   ## STEP 3
 
-    ### Start Dashboard using following command
+   ### Start Dashboard using following command
   
       $ Docker-compose up
     
