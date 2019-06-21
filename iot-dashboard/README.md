@@ -8,7 +8,7 @@ This is IOT dashboard developed in python using flask
 
 STEP 1
 
-Start main flux
+Start mainflux
 
 
 STEP 2
