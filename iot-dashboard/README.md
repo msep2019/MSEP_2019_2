@@ -6,32 +6,32 @@ This is IOT dashboard developed in python using flask
 
 # Usage 
 
-## STEP 1
+  ## STEP 1
 
-  ### Start mainflux
+    ### Start mainflux
 
-## STEP 2
+  ## STEP 2
 
-  ### Start sensor data collector on rapsberry pi
+    ### Start sensor data collector on rapsberry pi
 
-## STEP 3
+  ## STEP 3
 
-  ### Start Dashboard using following command
+    ### Start Dashboard using following command
   
-    $ Docker-compose up
+      $ Docker-compose up
     
 # Requirements:
 
-### 1.	Python 3.5 or above versions are required 
+  ### 1.	Python 3.5 or above versions are required 
 
   ### 2. Flask
 
-   $ pip3 install flask
+    $ pip3 install flask
 
 
-### 3. Numpy
+  ### 3. Numpy
 
-   $ pip3 install numpy
+    $ pip3 install numpy
 
 
 ### 4. InfluxDB Python Client Library
