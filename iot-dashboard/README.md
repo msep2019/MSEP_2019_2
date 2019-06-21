@@ -24,7 +24,7 @@ This is IOT dashboard developed in python using flask
 
 ### 1.	Python 3.5 or above versions are required 
 
-### 2. Flask
+  ### 2. Flask
 
    $ pip3 install flask
 
