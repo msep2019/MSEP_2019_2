@@ -1,7 +1,7 @@
 # Docker back-up (Windows)
   Before backing up, stop the service.
  ```
- sudo stop [container ID]
+ sudo docker stop [container ID]
  ```
 ### Inspect the container list, the properties involve container ID, image, comand, created, status, ports and names.
    ```
