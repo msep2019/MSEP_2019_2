@@ -1,0 +1,1 @@
+New sensor data service follow OGC format.
