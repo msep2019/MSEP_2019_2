@@ -29,5 +29,13 @@ app.get('/', function(req,res){
     })
 })
 
+//// find out the data within 5 mins
+//app.get('/', function(req,res){
+//    count.query('SELECT * FROM "temperature" WHERE time > now() - 5m').then(result => {
+//        res.json(result)}).catch(err => {
+//        res.status(500).send(err,stack)
+//    })
+//})
+
 app.listen(3000);
 console.log("IoT data server started on port: " + "3000");
