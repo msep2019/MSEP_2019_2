@@ -12,6 +12,8 @@
 //    database: 'test', 
 //    table: 'test'
 //});
+
+//use configuration in influxdb-connection.js
 var influx_connection = require("../models/influxdb-connection");
 //deal with unhandleedRejectionWarning
 process.on('unhandledRejection', error => {
@@ -29,6 +31,16 @@ new Promise((_, reject) => reject(new Error('oops')))
 //    })
 //})
 
+//// find out the data within 5 mins
+//function data_acuqire(req,res){
+//    count.query('SELECT * FROM "temperature" WHERE time > now() - 5m').then(result => {
+//        res.json(result)}).catch(err => {
+//        res.status(500).send(err,stack)
+//    })
+//};
+
+
+//using exports, in order to reuse directly in other js file
 function data_acuqire(req,res){
    count.query('SELECT * FROM "test"').then(result => {
        res.json(result)}).catch(err => {
@@ -37,17 +49,5 @@ function data_acuqire(req,res){
 };
 
 exports.data_acquire = data_acquire;
-    
-
-
-//// find out the data within 5 mins
-//exports.get_stream = function(req,res){
-//    count.query('SELECT * FROM "temperature" WHERE time > now() - 5m').then(result => {
-//        res.json(result)}).catch(err => {
-//        res.status(500).send(err,stack)
-//    })
-//};
-
-
 //app.listen(3000);
 //console.log("IoT data server started on port: " + "3000");
