@@ -9,11 +9,18 @@ const influx = new Influx.InfluxDB({
     username: 'admin',
     password: ''
   });
+var bodyParser = require('body-parser');
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+  
 
 influx.getDatabaseNames().then(names => 
     {
         console.log(names);
     });
+var routes = require('./api/routes/data-route'); //importing route
+routes(app); //register the route    
 app.listen(port);
 console.log("IoT data server started on port: " + port);
+
 
