@@ -40,14 +40,23 @@ new Promise((_, reject) => reject(new Error('oops')))
 //};
 
 
-//using exports, in order to reuse directly in other js file
-function data_acuqire(req,res){
-   count.query('SELECT * FROM "test"').then(result => {
+//using exports, in order to reuse directly in other js file. Use app.js under 'controllers' folder to test.
+//function data_acuqire(req,res){
+//   count.query('SELECT * FROM "test"').then(result => {
+//       res.json(result)}).catch(err => {
+//           res.status(500).send(err,stack)
+//   })
+//};
+//
+//exports.data_acquire = data_acquire;
+
+// it can be invoked in the routes/data-route.js 
+exports.get_stream = function(req,res){
+   count.query('SELECT * FROM "messages"').then(result => {
        res.json(result)}).catch(err => {
            res.status(500).send(err,stack)
    })
 };
 
-exports.data_acquire = data_acquire;
 //app.listen(3000);
 //console.log("IoT data server started on port: " + "3000");
