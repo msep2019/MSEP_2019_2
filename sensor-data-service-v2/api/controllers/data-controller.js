@@ -29,12 +29,14 @@ new Promise((_, reject) => reject(new Error('oops')))
 //    })
 //})
 
-exports.get_stream = function(req,res){
+function data_acuqire(req,res){
    count.query('SELECT * FROM "test"').then(result => {
        res.json(result)}).catch(err => {
            res.status(500).send(err,stack)
    })
 };
+
+exports.data_acquire = data_acquire;
     
 
 
