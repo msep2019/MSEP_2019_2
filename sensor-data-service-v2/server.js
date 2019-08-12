@@ -9,7 +9,15 @@ const influx = new Influx.InfluxDB({
     username: 'admin',
     password: ''
   });
-var bodyParser = require('body-parser');
+
+  
+  
+var mongoose = require('mongoose');
+  // mongoose instance connection url connection
+mongoose.Promise = global.Promise;
+mongoose.connect('mongodb://34.67.130.25/iot'); 
+var Datastream = require('./api/models/Datastream'), //created model loading here
+ bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
   
