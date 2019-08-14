@@ -1,6 +1,7 @@
 'use strict';
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
+var Task = mongoose.model('Task');
 
 // TODO: Add iot thing links
 var Datastream = new Schema({
