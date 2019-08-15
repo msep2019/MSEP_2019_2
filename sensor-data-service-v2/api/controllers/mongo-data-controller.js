@@ -17,66 +17,91 @@
 //var theName = {'name': 'sensor4'};
 //console.log(newSensor.name);
 
+var num = 0;
+var nameofSensor = newSensor.name;
+console.log(nameofSensor);
 
 // add new sensor, if it already exist, will not add to the database
-function add(newSensor){
-    newOne.find(newSensor.name, function(err,res){
-        if (err) throw err;
-        if (res.length > 0) {
-            console.log("cannot");
-        }
-        else
-        {
-            console.log("add");
-            newSensor.save(function (err) {
-                if (err) throw err;
-            })
-        }
-    });
-}
-
-
-//delete
-function delSensor (newSensor){
-    newOne.find(newSensor.name, function(err,res){
-        if (err) throw err;
-        if (res.length == 0) {
-            console.log("cannot");
-        }
-        else
-        {
-            console.log("can remove from database");
-            newOne.deleteOne(theName, function (err) {
-                if (err) throw err;
-            })
+function add(){
+    newOne.count({'name':nameofSensor},  function(err,res){
+        if (err) {
+            throw err;
+        } else {
+            num = res;
+            console.log(num);
+            if (num > 0) {
+                console.log("cannot");
+            } else {
+                console.log("add");
+                newSensor.save(function (err) {
+                    if (err) throw err;
+                })
+            }
         }
     });
 }
 
+
+////delete
+function delSensor(){
+    newOne.count({'name':nameofSensor},  function (err,res) {
+        if (err) {
+            throw err;
+        } else {
+            num = res;
+            console.log(num);
+            if (num < 1) {
+                console.log("cannot");
+            }
+            else
+            {
+                console.log("can remove from database");
+                newOne.remove({'name':nameofSensor}, function (error) {
+                    if (error) throw error;
+                });
+            }
+        }
+    });
+}
 
 //update
-//var updateDescription = {'description': 'battery111111'};
+var updateDescription = {'description': 'battery111111'};
 
-function updateSensor(newSensor, updateDescription) {
-    newOne.find(newSensor.name, function(err,res){
-        if (err) throw err;
-        if (res.length == 0) {
-            console.log("cannot");
-        }
-        else
-        {
-            console.log("can update");
-            newOne.update(newSensor.name, updateDescription, function (err) {
-                if (err) throw err;
-            })
+function updateSensor() {
+    newOne.count({'name':nameofSensor},  function (err,res) {
+        if (err) {
+            throw err;
+        } else {
+            num = res;
+            console.log(num);
+            if (num < 1) {
+                console.log("cannot");
+            }
+            else
+            {
+                console.log("can update");
+                newOne.update({'name':nameofSensor}, updateDescription, function (err) {
+                    if (err) throw err;
+                })
+            }
         }
     });
 }
 
 //find
-function findSensor(theName){
-    newOne.find(theName, function(err,res){
+function findSensor(){
+    newOne.find({'name':nameofSensor}, function(err,res){
         if (err) throw err;
         console.log(res);
     });
 }
+
+//add();
+//delSensor();
+//updateSensor();
+findSensor();
+
+//newOne.find({}, function(err,res){
+//    console.log(res);
+//});
+
