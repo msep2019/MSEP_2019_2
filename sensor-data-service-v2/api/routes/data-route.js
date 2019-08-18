@@ -30,31 +30,34 @@ module.exports = function(app) {
     app.route('/req/datastreams')
         .delete(data_stream_controller.delete_data_stream);                 
     
-    app.route('/req/Datastreams\\(:id\\)/properties')
+    app.route('/req/datastreams\\(:id\\)/properties')
         .get(data_stream_controller.get_data_stream);    
 
 
-    app.route('/req/Datastreams\\(:id\\)/relations')
+    app.route('/req/datastreams\\(:id\\)/relations')
         .get(data_stream_controller.get_data_stream);    
     // TODO: Add function for Thing entity
-    app.route('/req/Things')
+    app.route('/req/things')
         .get(thing_controller.get_things);      
 
-    app.route('/req/Things')
+    app.route('/req/things')
         .post(thing_controller.add_thing);
+
+    app.route('/req/things')
+        .delete(thing_controller.delete_thing);        
     
-    app.route('/req/Things\\(:id\\)')
+    app.route('/req/things\\(:id\\)')
         .get(thing_controller.get_things); 
 
-    app.route('/req/Things\\(:id\\)/properties')
+    app.route('/req/things\\(:id\\)/properties')
         .get(thing_controller.get_things); 
 
-    app.route('/req/Things\\(:id\\)/relations')
+    app.route('/req/things\\(:id\\)/relations')
         .get(thing_controller.get_things);     
 
-    app.route('/req/Observations')
+    app.route('/req/observations')
         .get(observation_controller.get_observations);   
 
-    app.route('/req/Observations\\(:id\\)')
+    app.route('/req/observations\\(:id\\)')
         .get(observation_controller.get_observations);   
   };
