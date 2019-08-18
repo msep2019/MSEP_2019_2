@@ -1,11 +1,15 @@
 'use strict';
 module.exports = function(app) {
     var data_stream_controller = require('../controllers/data-stream-controller');
-    var thing_controller = require('../controllers/thing-controller');
-    var observation_controller = require('../controllers/observation-controller');
-    //var data_controllers = require('../controllers/data-controller');
-    
+ var data_controllers = require('../controllers/data-controller');
+    // Depecrated routes
+    app.route('/test-stream')
+        .get(data_controllers.get_stream);
     // stream routes
+	var thing_controller = require('../controllers/thing-controller');
+	var observation_controller = require('../controllers/observation-controller');
+	//var data_controllers = require('../controllers/data-controller');
+        // stream routes
     app.route('/stream')
         .get(data_stream_controller.get_stream);
     console.log("Registering stream route")    ;
