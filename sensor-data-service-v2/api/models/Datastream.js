@@ -6,7 +6,9 @@ var Schema = mongoose.Schema;
 var Datastream = new Schema({
   "@iot.id": {
     type: String,
-    required: 'Datastream id'
+    required: 'Datastream id',
+    index: true,
+    unique: true    
   },
   "@iot.selfLink": {
     type: String,
