@@ -6,6 +6,7 @@ module.exports = function(app) {
     app.route('/test-stream')
         .get(data_controllers.get_stream);
     // stream routes
+	var sensor_controller = require('../controllers/sensor-controller');
 	var thing_controller = require('../controllers/thing-controller');
 	var observation_controller = require('../controllers/observation-controller');
 	//var data_controllers = require('../controllers/data-controller');
@@ -59,5 +60,17 @@ module.exports = function(app) {
         .get(observation_controller.get_observations);   
 
     app.route('/req/observations\\(:id\\)')
-        .get(observation_controller.get_observations);   
+        .get(observation_controller.get_observations); 
+	
+    app.route('/req/sensor')
+        .get(sensor_controller.getSensor);
+
+    app.route('/req/sensor')
+        .post(sensor_controller.addSensor);
+
+    app.route('/req/sensor')
+        .delete(sensor_controller.deleteSensor);
+
+    app.route('/req/sensor\\(:id\\)')
+        .get(sensor_controller.getSensor);
   };
