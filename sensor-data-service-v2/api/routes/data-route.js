@@ -62,13 +62,13 @@ module.exports = function(app) {
     app.route('/req/observations\\(:id\\)')
         .get(observation_controller.get_observations); 
 	
-    app.route('/req/sensor')
+    app.route('/req/sensors')
         .get(sensor_controller.getSensor);
 
-    app.route('/req/sensor')
+    app.route('/req/sensors')
         .post(sensor_controller.addSensor);
 
-    app.route('/req/sensor')
+    app.route('/req/sensors')
         .delete(sensor_controller.deleteSensor);
 
     app.route('/req/sensor\\(:id\\)')

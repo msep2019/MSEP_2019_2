@@ -20,6 +20,7 @@ mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
 var Thing = require('./api/models/Thing');
+var Sensor = require('./api/models/sensor');
 var Datastream = require('./api/models/Datastream'), //created model loading here
  bodyParser = require('body-parser');
 
