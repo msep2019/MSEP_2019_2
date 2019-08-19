@@ -7,10 +7,10 @@ exports.getSensor = function(req,res) {
     var sensor_id = req.params.id;
     if (sensor_id != null) {
         console.log('sensor_id' + sensor_id);
-        sensor.findOne({"@iot.id": sensor_id}, sensor_fields, function (err, thing) {
+        sensor.findOne({"@iot.id": sensor_id}, sensor_fields, function (err, sensor) {
             if (err)
                 return res.json(err);
-            return res.json(converMongoToOGC(sensor));
+            return res.json(convertMongoToOGC(sensor));
         });
     } else {
         sensor.find().exec(function(err,sensors){
@@ -19,7 +19,7 @@ exports.getSensor = function(req,res) {
             var all_sensor = [];
             if(sensors != null){
                 sensors.forEach(function (sensor) {
-                    all_sensor.push(converMongoToOGC(sensor));
+                    all_sensor.push(convertMongoToOGC(sensor));
                 })
             }
             return res.json(all_sensor);
@@ -28,11 +28,11 @@ exports.getSensor = function(req,res) {
 };
 
 exports.addSensor = function (req,res) {
-    var new_sensor = new Sensor(req.body);
+    var new_sensor = new sensor(req.body);
     new_sensor.save(function (err, sensor) {
         if (err)
             return res.json(err);
-        res.json(converMongoToOGC(sensor));
+        res.json(convertMongoToOGC(sensor));
     });
 };
 
