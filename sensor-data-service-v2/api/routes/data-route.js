@@ -70,7 +70,4 @@ module.exports = function(app) {
 
     app.route('/req/sensors')
         .delete(sensor_controller.deleteSensor);
-
-    app.route('/req/sensor\\(:id\\)')
-        .get(sensor_controller.getSensor);
   };

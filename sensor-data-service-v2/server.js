@@ -19,6 +19,7 @@ mongoose.connect('mongodb://34.67.130.25/iot');
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
+var Sensor = require('./api/models/sensor');
 var Thing = require('./api/models/Thing');
 var Sensor = require('./api/models/sensor');
 var Datastream = require('./api/models/Datastream'), //created model loading here
