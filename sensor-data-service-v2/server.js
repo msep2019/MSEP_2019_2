@@ -16,16 +16,16 @@ var mongoose = require('mongoose');
   // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
 mongoose.connect('mongodb://34.67.130.25/iot'); 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true);
+var Thing = require('./api/models/Thing');
 var Datastream = require('./api/models/Datastream'), //created model loading here
  bodyParser = require('body-parser');
+var Location =require('./api/models/Location');
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-  
+app.use(bodyParser.json());  
 
-influx.getDatabaseNames().then(names => 
-    {
-        console.log(names);
-    });
 var routes = require('./api/routes/data-route'); //importing route
 routes(app); //register the route    
 app.listen(port);

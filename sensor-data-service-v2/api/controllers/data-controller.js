@@ -15,6 +15,7 @@
 
 //use configuration in influxdb-connection.js
 var influx_connection = require("../models/influxdb-connection");
+var influxdb = influx_connection.influx;
 //deal with unhandleedRejectionWarning
 process.on('unhandledRejection', error => {
     console.log('unhandledRejection', error.message);
@@ -52,7 +53,7 @@ new Promise((_, reject) => reject(new Error('oops')))
 
 // it can be invoked in the routes/data-route.js 
 exports.get_stream = function(req,res){
-   count.query('SELECT * FROM "messages"').then(result => {
+    influxdb.query('SELECT * FROM "messages"').then(result => {
        res.json(result)}).catch(err => {
            res.status(500).send(err,stack)
    })
