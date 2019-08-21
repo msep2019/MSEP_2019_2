@@ -49,9 +49,8 @@ exports.get_data_stream = function(req, res) {
       return res.json(result_array);
     });
   }
-  
-  
 };
+
 
 exports.add_data_stream = function(req, res) {
   var new_datastream = new Datastream(req.body);
@@ -102,9 +101,10 @@ exports.delete_data_stream = function(req, res) {
 
 function convertMongoToOGC(stream) {
   var ogc_datastream = new Map;  
-  ogc_datastream['@iot.id'] = stream.get('@iot')['id'];
-  ogc_datastream['@iot.selfLink'] = stream.get('@iot')['selfLink'];
-  ogc_datastream["Sensor@iot.navigationLink"] = stream.get("sensor@iot")['navigationLink'];
+  ogc_datastream['@iot.id'] = stream.get('id');
+  ogc_datastream['@iot.selfLink'] = "req/datastreams/(" + stream.get('id') + ")";
+  ogc_datastream["sensor@iot.navigationLink"] = "req/datastreams/(" + stream.get('id') + ")/sensor";
+  ogc_datastream["sensor@iot.navigationLink"] = "req/datastreams/(" + stream.get('id') + ")/thing";
   ogc_datastream["name"] = stream.get("name");
   ogc_datastream["description"] = stream.get("description");
   ogc_datastream["unitOfMeasurement"] = stream.get("unitOfMeasurement");

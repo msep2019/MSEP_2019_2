@@ -61,6 +61,9 @@ module.exports = function(app) {
 
     app.route('/req/observations\\(:id\\)')
         .get(observation_controller.get_observations); 
+
+    app.route('/req/observations\\(:id\\)/datastream')
+        .get(data_stream_controller.get_data_stream);     
 	
     app.route('/req/sensors')
         .get(sensor_controller.getSensor);
