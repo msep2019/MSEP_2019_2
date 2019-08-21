@@ -22,6 +22,12 @@ module.exports = function(app) {
 
     app.route('/req/datastreams\\(:id\\)')
         .get(data_stream_controller.get_data_stream);
+
+    app.route('/req/datastreams\\(:id\\)/sensor')
+        .get(data_stream_controller.get_data_stream_sensor);    
+
+    app.route('/req/datastreams\\(:id\\)/thing')
+        .get(data_stream_controller.get_data_stream_thing);   
     
     app.route('/req/datastreams')
         .get(data_stream_controller.get_data_stream); 
@@ -65,6 +71,7 @@ module.exports = function(app) {
     app.route('/req/observations')
         .get(observation_controller.get_observations);  
 
+    // Location routes
     app.route('/req/locations')
         .get(location_controller.get_locations);
 
@@ -81,13 +88,22 @@ module.exports = function(app) {
 
     app.route('/req/observations\\(:id\\)/datastream')
         .get(data_stream_controller.get_data_stream);     
-	
+    
+    // Sensor routes    
+    // Get all sensors
     app.route('/req/sensors')
         .get(sensor_controller.getSensor);
+    
+    // Get one sensor
+    app.route('/req/sensors\\(:id\\)')
+        .get(sensor_controller.getSensor);    
 
+    // Add new sensor
     app.route('/req/sensors')
         .post(sensor_controller.addSensor);
 
+    // Delete a sensor
     app.route('/req/sensors')
         .delete(sensor_controller.deleteSensor);
+
   };

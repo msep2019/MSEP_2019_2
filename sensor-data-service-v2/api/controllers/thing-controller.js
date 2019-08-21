@@ -1,17 +1,17 @@
 
 'use strict';
-var influx_connection = require("../models/influxdb-connection");
+var configuration = require("../../configuration.js");
+var domainUrl = configuration.domain;
 var mongoose = require('mongoose'),
   Thing = mongoose.model('Thing');
-const thing_fields = "@iot.id @iot.selfLink locations@iot.navigationLink " + 
-  "historicalLocations@iot.navigationLink datastreams@iot.navigationLink name description properties";
+const thing_fields = "_id name description properties";
 
 
 exports.get_things = function(req, res) {
   var thing_id = req.params.id;
   if (thing_id != null) {
     console.log('Get thing ' + thing_id); 
-    Thing.findOne({"@iot.id":thing_id}, thing_fields, function(err, thing)
+    Thing.findOne({"_id":thing_id}, thing_fields, function(err, thing)
     {
       if (err) {
         console.log("Error " + err);
@@ -41,16 +41,17 @@ exports.add_thing = function(req, res) {
   console.log('Add thing');
   var new_thing = new Thing(req.body);
   new_thing.save(function(err, thing) {
-    if (err)
+    if (err) {
       res.send(err);
-    res.json(convertMongoToOGC(thing));
+    } else {
+      res.json(convertMongoToOGC(thing));
+    }
   });  
 };
 
 exports.delete_thing = function(req, res) {
-  console.log('Delete thing');
-  var new_thing = new Thing(req.body);
-  Thing.findOneAndDelete({"@iot.id":new_thing.get("@iot")['id']}, function(err, thing) {
+  console.log('Delete thing ' + req.body['@iot.id']);
+  Thing.findOneAndDelete({"_id":req.body['@iot.id']}, function(err, thing) {
     if (err) {
       res.send(err);
     } else {
@@ -64,15 +65,18 @@ exports.delete_thing = function(req, res) {
 };
 
 
-function convertMongoToOGC(thing) {
+function convertMongoToOGC(thing) {  
   var ogc_thing = new Map;  
-  ogc_thing['@iot.id'] = thing.get('@iot')['id'];
-  ogc_thing['@iot.selfLink'] = thing.get('@iot')['selfLink'];
-  ogc_thing["locations@iot.navigationLink"] = thing.get("locations@iot")['navigationLink'];
-  ogc_thing["historicalLocations@iot.navigationLink"] = thing.get("historicalLocations@iot")['navigationLink'];
-  ogc_thing["datastreams@iot.navigationLink"] = thing.get("datastreams@iot")['navigationLink'];
-  ogc_thing["name"] = thing.get("name");
-  ogc_thing["description"] = thing.get("description");
-  ogc_thing["properties"] = thing.get("unitOfMeasurement");  
+  if (thing != null) {
+    ogc_thing['@iot.id'] = thing.get('_id');
+    ogc_thing['@iot.selfLink'] = domainUrl + '/req/things(' + ogc_thing['@iot.id'] + ')';
+    ogc_thing["locations@iot.navigationLink"] = ogc_thing['@iot.selfLink'] + "/locations";
+    ogc_thing["historicalLocations@iot.navigationLink"] = ogc_thing['@iot.selfLink'] + "/historicalLocations"
+    ogc_thing["datastreams@iot.navigationLink"] = ogc_thing['@iot.selfLink'] + "/datastreams"
+    ogc_thing["name"] = thing.get("name");
+    ogc_thing["description"] = thing.get("description");
+    ogc_thing["properties"] = thing.get("properties");
+  }
+    
   return ogc_thing;
 }

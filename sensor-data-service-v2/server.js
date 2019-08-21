@@ -1,6 +1,7 @@
 var express = require("express"), app = express(), port = process.env.port || 5000;
 
 
+
 const Influx = require('influx');
 const influx = new Influx.InfluxDB({
     host: '34.67.130.25',
@@ -9,8 +10,6 @@ const influx = new Influx.InfluxDB({
     username: 'admin',
     password: ''
   });
-
-  
   
 var mongoose = require('mongoose');
   // mongoose instance connection url connection

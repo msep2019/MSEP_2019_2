@@ -8,4 +8,5 @@ NodeJS
 Required libraries:
 - express
 - influx
+- mongodb
 - nodemon (development)

@@ -3,20 +3,14 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 var Datastream = new Schema({
-  "id": {
-    type: String,
-    required: 'Datastream id',
-    index: true,
-    unique: true    
-  },  
-  "sensor": {
+  "sensor_id": {
       type: String,
       required: 'Sensor'
   },
-  "thing": {
+  "thing_id": {
     type: String,
-    required: 'Sensor'
-},
+    required: 'Thing'
+  },
   name: {
       type: String,
       required: 'Name of datastream'
