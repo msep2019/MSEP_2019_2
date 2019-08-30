@@ -61,6 +61,7 @@ function convertMongoToOGC(sensor) {
     if (sensor != null) {
         ogc['@iot.id'] = sensor.get('_id');
         ogc['@iot.selfLink'] = domainUrl + "/req/sensors(" + ogc['@iot.id'] + ")"; 
+        ogc["datastreams@iot.navigationLink"] = "/req/sensors(" + ogc['@iot.id'] + ")" + "/datastreams";
         ogc["name"] = sensor.get("name");
         ogc["description"] = sensor.get("description");
         ogc["encodingType"] = sensor.get("encodingType");

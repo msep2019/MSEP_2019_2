@@ -151,16 +151,60 @@ exports.get_data_stream_thing = function(req, res) {
         return res.json({});
       }
     });
-  } 
+  } else {
+    return res.json("Invalid id");
+  }
 };
+
+exports.get_data_streams_by_sensor_id = function (req,res) {
+  var sensor_id = req.params.id;
+  if (sensor_id != null) {
+    Datastream.find({"sensor_id": sensor_id}).exec(function(err, docs) {
+      if (err) {
+        console.log("Error " + err);
+        return res.json(err);
+      }    
+      var result_array = [];
+      if (docs != null) {
+        docs.forEach(function(doc) {
+          result_array.push(convertMongoToOGC(doc));
+        });
+      }
+      return res.json(result_array);
+    });
+  } else {
+    return res.json("Invalid id");
+  }
+}
+
+exports.get_data_streams_by_thing_id = function (req,res) {
+  var thing_id = req.params.id;  
+  if (thing_id != null) {
+    Datastream.find({"thing_id": thing_id}).exec(function(err, docs) {
+      if (err) {
+        console.log("Error " + err);
+        return res.json(err);
+      }    
+      var result_array = [];
+      if (docs != null) {
+        docs.forEach(function(doc) {
+          result_array.push(convertMongoToOGC(doc));
+        });
+      }
+      return res.json(result_array);
+    });
+  } else {
+    return res.json("Invalid id");
+  }
+}
 
 function convertMongoToOGC(stream) {
   var ogc_datastream = new Map;  
   if (stream != null) {
     ogc_datastream['@iot.id'] = stream.get('_id');
     ogc_datastream['@iot.selfLink'] = domainUrl + '/req/datastreams(' + ogc_datastream['@iot.id'] + ')';
-    ogc_datastream["sensor@iot.navigationLink"] = ogc_datastream['@iot.selfLink'] + "/sensor";
-    ogc_datastream["thing@iot.navigationLink"] = ogc_datastream['@iot.selfLink'] + "/thing";
+    ogc_datastream["sensor@iot.navigationLink"] = '/req/datastreams(' + ogc_datastream['@iot.id'] + ')' + "/sensor";
+    ogc_datastream["thing@iot.navigationLink"] = '/req/datastreams(' + ogc_datastream['@iot.id'] + ')' + "/thing";
     ogc_datastream["name"] = stream.get("name");
     ogc_datastream["description"] = stream.get("description");
     ogc_datastream["unitOfMeasurement"] = stream.get("unitOfMeasurement");

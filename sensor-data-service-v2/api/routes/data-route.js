@@ -46,7 +46,8 @@ module.exports = function(app) {
 
     app.route('/req/datastreams\\(:id\\)/relations')
         .get(data_stream_controller.get_data_stream);    
-    // TODO: Add function for Thing entity
+    
+    // Routes for Thing entity
     app.route('/req/things')
         .get(thing_controller.get_things);      
 
@@ -56,20 +57,28 @@ module.exports = function(app) {
     app.route('/req/things')
         .delete(thing_controller.delete_thing);        
     
+    app.route('/req/things\\(:id\\)/datastreams')
+        .get(data_stream_controller.get_data_streams_by_thing_id); 
+
     app.route('/req/things\\(:id\\)')
-        .get(thing_controller.get_things); 
+        .get(thing_controller.get_things);     
 
     app.route('/req/things\\(:id\\)/properties')
         .get(thing_controller.get_things); 
 
     app.route('/req/things\\(:id\\)/relations')
         .get(thing_controller.get_things);     
+    
 
+    // Routes for observations
     app.route('/req/observations')
         .get(observation_controller.get_observations);   
 
-    app.route('/req/observations')
-        .get(observation_controller.get_observations);  
+    app.route('/req/observations\\(:id\\)')
+        .get(observation_controller.get_observations); 
+
+    app.route('/req/observations\\(:id\\)/datastream')
+        .get(observation_controller.get_observation_datastream);           
 
     // Location routes
     app.route('/req/locations')
@@ -83,11 +92,7 @@ module.exports = function(app) {
 
     app.route('/req/locations\\(:id\\)')
         .get(location_controller.get_locations);
-    app.route('/req/observations\\(:id\\)')
-        .get(observation_controller.get_observations); 
-
-    app.route('/req/observations\\(:id\\)/datastream')
-        .get(data_stream_controller.get_data_stream);     
+    
     
     // Sensor routes    
     // Get all sensors
@@ -106,4 +111,7 @@ module.exports = function(app) {
     app.route('/req/sensors')
         .delete(sensor_controller.deleteSensor);
 
+    // Get sensor datastreams
+    app.route('/req/sensors\\(:id\\)/datastreams')
+        .get(data_stream_controller.get_data_streams_by_sensor_id);    
   };
