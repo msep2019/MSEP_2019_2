@@ -1604,15 +1604,43 @@
           "name": "SimpleRequest",
           "type": "event",
           "signature": "0xafe868f5fb403b4e560343a29e37d1fcd0fff05ca7c2dca09091b24181e24da2"
+        },
+        "0x48e874ee0749c5674bd9c50c188b6fd5f09fbae0453622508544c2f428827746": {
+          "anonymous": false,
+          "inputs": [
+            {
+              "indexed": false,
+              "name": "from",
+              "type": "address"
+            },
+            {
+              "indexed": false,
+              "name": "a",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "b",
+              "type": "uint256"
+            },
+            {
+              "indexed": false,
+              "name": "result",
+              "type": "uint256"
+            }
+          ],
+          "name": "SimpleEvent",
+          "type": "event",
+          "signature": "0x48e874ee0749c5674bd9c50c188b6fd5f09fbae0453622508544c2f428827746"
         }
       },
       "links": {},
-      "address": "0xa8c1CAE282B322514f604985ddCD7752Bbf503D9",
-      "transactionHash": "0x3efcfa5b0270eec1a9bff815fb0bbd7c81fac8e308a9243e27982916a3dc98e1"
+      "address": "0x7DaFf363B2c03A917112c206f6CDDd5026437BA3",
+      "transactionHash": "0x4620303fcaaeb81725aab01ffc442f16871e2f09c9370a30bc6bc48d1546eaca"
     }
   },
   "schemaVersion": "3.0.15",
-  "updatedAt": "2019-09-05T01:53:05.719Z",
+  "updatedAt": "2019-09-05T01:58:40.205Z",
   "devdoc": {
     "methods": {}
   },
