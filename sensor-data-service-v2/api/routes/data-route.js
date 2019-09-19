@@ -1,7 +1,7 @@
 'use strict';
 module.exports = function(app) {
     var data_stream_controller = require('../controllers/data-stream-controller');
- var data_controllers = require('../controllers/data-controller');
+    var data_controllers = require('../controllers/data-controller');
     // Depecrated routes
     app.route('/test-stream')
         .get(data_controllers.get_stream);
@@ -10,7 +10,8 @@ module.exports = function(app) {
     var observation_controller = require('../controllers/observation-controller');
     var location_controller = require('../controllers/Location-controller');
 
-	var sensor_controller = require('../controllers/sensor-controller');
+    var sensor_controller = require('../controllers/sensor-controller');
+    var datastream_tag_controller = require('../controllers/datastream-tag-controller');
 	
 	//var data_controllers = require('../controllers/data-controller');
         // stream routes
@@ -117,4 +118,18 @@ module.exports = function(app) {
     // Get sensor datastreams
     app.route('/req/sensors\\(:id\\)/datastreams')
         .get(data_stream_controller.get_data_streams_by_sensor_id);    
+
+    // Datastream sensor tag mapping routes
+    // Get all mappings
+    app.route("/conf/datastreamtagmappings")
+        .get(datastream_tag_controller.getDatastreamTagMapping);  
+    // Get mapping by id    
+    app.route("/conf/datastreamtagmappings\\(:id\\)")
+        .get(datastream_tag_controller.getDatastreamTagMapping);        
+    
+    app.route("/conf/datastreamtagmappings")
+        .post(datastream_tag_controller.addDatastreamTagMapping);
+        
+    app.route("/conf/datastreamtagmappings")
+        .delete(datastream_tag_controller.deleteDatastreamTagMapping);        
   };

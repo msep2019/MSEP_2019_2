@@ -5,6 +5,7 @@ var influxdb = influx_connection.influx;
 var configuration = require("../../configuration.js");
 var domainUrl = configuration.domain;
 var datastream_controller = require("./data-stream-controller");
+var ogc_filter_influx_query_mapping = {"result":"value", "gt": ">", "ge" : ">=", "lt" : "<", "le": "<="};
 function getObservations(req, res) {
     // id format: urn:dev:mac:(MAC_Address)-(sensor_type)-(datastream-id)-(time).
     // for example: urn:dev:mac:f0:f8:f2:86:7a:82-ambienttemp-12121313-213131;
@@ -48,24 +49,7 @@ function getObservations(req, res) {
         if (req.query['$filter'] != null) {
             // TODO: Use patterns to extract all functions and create query
             var filters = req.query['$filter'];
-            // Currently support only gt, ge, lt and le functions on result
-            var parts = filters.split(" ");            
-            if (parts[0] == 'result') {
-                condition = condition + "value ";
-                if (parts[1] == 'gt') {
-                    condition = condition + ">";
-                }
-                if (parts[1] == 'ge') {
-                    condition = condition + ">=";
-                }
-                if (parts[1] == 'lt') {
-                    condition = condition + "<";
-                }
-                if (parts[1] == 'le') {
-                    condition = condition + "<=";
-                }
-                condition = condition + " " + parts[2];
-            }
+            condition = condition + parsingFilterForObservation(filters);
         }
         query_script = query_script + condition;
         query_script = query_script + " LIMIT " + limit;
@@ -112,6 +96,17 @@ function getObservationDataStream(req, res) {
     } else {
         res.status(500).send("Invalid id");
     }
+}
+
+function parsingFilterForObservation(filters) {
+    // TODO: Use patterns to extract all functions and create query    
+    // Currently support only gt, ge, lt and le functions on result
+    var parts = filters.split(" ");     
+    var condition = "";       
+    parts.forEach(part =>{
+        condition = condition + " " + ogc_filter_influx_query_mapping[part] + " ";
+    });   
+    return condition;
 }
 exports.get_observations = getObservations;
 exports.get_observation_datastream = getObservationDataStream;
