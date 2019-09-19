@@ -24,6 +24,7 @@ var Location =require('./api/models/Location');
 
 var Sensor = require('./api/models/sensor');
 var Thing = require('./api/models/Thing');
+var Thing = require('./api/models/DatastreamTagMapping');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());  
 
