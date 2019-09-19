@@ -5,7 +5,6 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SensorTagDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/SensorTagDetector.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/conf.ini" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/sensortag.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/sensortag.db" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -177,7 +176,14 @@
       <option name="project" value="LOCAL" />
       <updated>1558236299051</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Disable redis messages.">
+      <created>1568895920430</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1568895920430</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -199,6 +205,7 @@
     <MESSAGE value="Implement MQTT transferring sensor data to Mainflux." />
     <MESSAGE value="Add feature: checking MAC address before connecting. Add the db configuration." />
     <MESSAGE value="Refactor code for detecting mac address" />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactor code for detecting mac address" />
+    <MESSAGE value="Disable redis messages." />
+    <option name="LAST_COMMIT_MESSAGE" value="Disable redis messages." />
   </component>
 </project>
