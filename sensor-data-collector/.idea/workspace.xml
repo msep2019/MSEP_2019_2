@@ -4,7 +4,6 @@
     <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/SensorTagDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/SensorTagDetector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/conf.ini" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -20,6 +19,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Quoc-Huy-Nguyen &lt;a1761672@student.adelaide.edu.au&gt;" />
+      </list>
+    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="ProjectId" id="1R12b5nErlZesAVDoNDZkmVlI2h" />

@@ -189,14 +189,21 @@ class RetrievingDataThread(threading.Thread):
 
         if data_dict is not None:
             # Insert battery value
-
+            base = {}
+            base['bn'] = "urn:dev:mac:" + data_dict['MAC'] + ":"
+            base['bt'] = data_dict['current_time']
+            base['n'] = 'base'
+            base['u'] = ''
+            base['t'] = 0
+            base['v'] = 0
+            senml_message.append(base)
             if 'battery' in config[data_dict['MAC']]:
                 battery_streams = config[data_dict['MAC']]['battery']
                 tmp_parts = battery_streams.split(",")
                 for part in tmp_parts:
                     battery = {}
-                    battery['bn'] = "urn:dev:mac:" + data_dict['MAC'] + ":"
-                    battery['bt'] = data_dict['current_time']
+                    # battery['bn'] = "urn:dev:mac:" + data_dict['MAC'] + ":"
+                    # battery['bt'] = data_dict['current_time']
                     battery['n'] = 'battery' + "-" + part
                     battery['u'] = '%EL'
                     battery['t'] = 0
