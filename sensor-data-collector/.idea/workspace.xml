@@ -2,9 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../huy-nguyen/event-trigger-example/build/contracts/Migrations.json" beforeDir="false" afterPath="$PROJECT_DIR$/../huy-nguyen/event-trigger-example/build/contracts/Migrations.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../huy-nguyen/event-trigger-example/build/contracts/SimpleContract.json" beforeDir="false" afterPath="$PROJECT_DIR$/../huy-nguyen/event-trigger-example/build/contracts/SimpleContract.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/SensorTagDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/SensorTagDetector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/conf.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/database/sensortag.db" beforeDir="false" afterPath="$PROJECT_DIR$/database/sensortag.db" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -19,31 +20,14 @@
       </list>
     </option>
   </component>
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>_reconnect</find>
-      <find>IRTemperatureSensorTMP007</find>
-      <find>SENSORTAG_2650</find>
-      <find>disconnec</find>
-    </findStrings>
-    <replaceStrings>
-      <replace />
-    </replaceStrings>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
-  </component>
-  <component name="ProjectFrameBounds" extendedState="6">
-    <option name="x" value="293" />
-    <option name="y" value="47" />
-    <option name="width" value="1400" />
-    <option name="height" value="908" />
   </component>
   <component name="ProjectId" id="1R12b5nErlZesAVDoNDZkmVlI2h" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../sensor-data-service-v2" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
@@ -201,7 +185,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>
