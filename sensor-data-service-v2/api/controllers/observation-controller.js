@@ -24,10 +24,11 @@ function getObservations(req, res) {
             .then(result => {
                 var ogc_observation = new Map;
                 result.forEach(element => {
-                    var time = element['time'].getNanoTime();
+                    var time = element['time'].toISOString();
+                    // var time = element['time'].getNanoTime();
                     ogc_observation['@iot.id'] = element['name'].substring(12, 29) + '-' + element['name'].substring(30) + '-' + chunks[2];
                     ogc_observation['@iot.selfLink'] = domainUrl +  '/req/observations(' + ogc_observation['@iot.id'] + ')';
-                    ogc_observation['datastream@iot.navigationLink'] = 'req/observations(' + ogc_observation['@iot.id'] + ')/datastream';                
+                    ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
                     ogc_observation['phenomenonTime'] = time ;
                     ogc_observation['resultTime'] = time;
                     ogc_observation['result'] = element['value'];
@@ -38,22 +39,52 @@ function getObservations(req, res) {
                 res.status(500).send(err.stack)
             })
     } else {
-        var query_script = "SELECT * FROM messages LIMIT 10";
-        console.log("Script " + query_script)                            ;
+        var limit = 10;
+        if (req.query['$top'] != null) {
+            limit = req.query['$top'];
+        } 
+        var query_script = "SELECT * FROM messages ";
+        var condition = " WHERE ";
+        if (req.query['$filter'] != null) {
+            // TODO: Use patterns to extract all functions and create query
+            var filters = req.query['$filter'];
+            // Currently support only gt, ge, lt and le functions on result
+            var parts = filters.split(" ");            
+            if (parts[0] == 'result') {
+                condition = condition + "value ";
+                if (parts[1] == 'gt') {
+                    condition = condition + ">";
+                }
+                if (parts[1] == 'ge') {
+                    condition = condition + ">=";
+                }
+                if (parts[1] == 'lt') {
+                    condition = condition + "<";
+                }
+                if (parts[1] == 'le') {
+                    condition = condition + "<=";
+                }
+                condition = condition + " " + parts[2];
+            }
+        }
+        query_script = query_script + condition;
+        query_script = query_script + " LIMIT " + limit;
+        console.log("Script " + query_script);
         var ogc_array = [];
         influxdb.query(query_script)
             .then(result => {                
                 result.forEach(element => {
                     var ogc_observation = new Map;
-                    var time = element['time'].getNanoTime();
+                    // var time = element['time'].getNanoTime();
+                    var time = element['time'].toISOString();
                     ogc_observation['@iot.id'] = element['name'] + "-" + time;
                     ogc_observation['@iot.selfLink'] = domainUrl + '/req/observations(' + ogc_observation['@iot.id'] + ')';
-                    ogc_observation['datastream@iot.navigationLink'] = 'req/observations(' + ogc_observation['@iot.id'] + ')/datastream';                
-                    ogc_observation['phenomenonTime'] = time ;
+                    ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
+                    ogc_observation['phenomenonTime'] = new Date(time) ;
                     ogc_observation['resultTime'] = time;
                     ogc_observation['result'] = element['value'];
                     ogc_array.push(ogc_observation);           
-                    console.log(ogc_array);         
+                    // console.log(ogc_array);         
                 });
                 res.json(ogc_array);                  
             }).catch(err => {

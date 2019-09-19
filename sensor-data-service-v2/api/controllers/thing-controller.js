@@ -70,9 +70,9 @@ function convertMongoToOGC(thing) {
   if (thing != null) {
     ogc_thing['@iot.id'] = thing.get('_id');
     ogc_thing['@iot.selfLink'] = domainUrl + '/req/things(' + ogc_thing['@iot.id'] + ')';
-    ogc_thing["locations@iot.navigationLink"] = '/req/things(' + ogc_thing['@iot.id'] + ')' + "/locations";
-    ogc_thing["historicalLocations@iot.navigationLink"] = '/req/things(' + ogc_thing['@iot.id'] + ')' + "/historicalLocations";
-    ogc_thing["datastreams@iot.navigationLink"] = '/req/things(' + ogc_thing['@iot.id'] + ')' + "/datastreams";
+    ogc_thing["locations@iot.navigationLink"] = 'things(' + ogc_thing['@iot.id'] + ')' + "/locations";
+    ogc_thing["historicalLocations@iot.navigationLink"] = 'things(' + ogc_thing['@iot.id'] + ')' + "/historicalLocations";
+    ogc_thing["datastreams@iot.navigationLink"] = 'things(' + ogc_thing['@iot.id'] + ')' + "/datastreams";
     ogc_thing["name"] = thing.get("name");
     ogc_thing["description"] = thing.get("description");
     ogc_thing["properties"] = thing.get("properties");

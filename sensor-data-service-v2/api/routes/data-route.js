@@ -29,6 +29,9 @@ module.exports = function(app) {
     app.route('/req/datastreams\\(:id\\)/thing')
         .get(data_stream_controller.get_data_stream_thing);   
     
+    app.route('/req/datastreams\\(:id\\)/observations')
+        .get(data_stream_controller.get_data_stream_observations);    
+    
     app.route('/req/datastreams')
         .get(data_stream_controller.get_data_stream); 
     app.route('/req/datastreams')

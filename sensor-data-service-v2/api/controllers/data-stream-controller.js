@@ -2,6 +2,7 @@
 'use strict';
 var influx_connection = require("../models/influxdb-connection");
 var configuration = require("../../configuration.js");
+var influxdb = influx_connection.influx;
 var domainUrl = configuration.domain;
 var mongoose = require('mongoose'),
   Datastream = mongoose.model('Datastream');
@@ -177,6 +178,61 @@ exports.get_data_streams_by_sensor_id = function (req,res) {
   }
 }
 
+exports.get_data_stream_thing = function(req, res) {
+  var stream_id = req.params.id;
+  console.log('Get data stream ' + stream_id);  
+  if (stream_id != null) {   
+    Datastream.findOne({"_id":stream_id}, datastream_fields, function(err, stream)
+    {
+      if (err) {
+        console.log("Error " + err);
+        return res.json(err);
+      }    
+      if (stream != null) {        
+        req.params.id = stream.get('thing_id');
+        thing_controller.get_things(req,res);        
+      } else {
+        return res.json({});
+      }
+    });
+  } else {
+    return res.json("Invalid id");
+  }
+};
+
+exports.get_data_stream_observations = function (req,res) {
+  var datastream_id = req.params.id;
+  if (datastream_id != null) {
+    // observation id format: urn:dev:mac:(MAC_Address)-(sensor_type)-(datastream-id)-(time).
+    // for example: urn:dev:mac:f0:f8:f2:86:7a:82-ambienttemp-12121313-213131;
+    var query_script = "SELECT * FROM messages WHERE \"name\" =~ /.*" 
+                                + datastream_id + ".*/" + " LIMIT 20";
+    console.log("Script " + query_script);
+    var ogc_array = [];
+    influxdb.query(query_script)
+        .then(result => {
+            var ogc_observation = new Map;
+            result.forEach(element => {
+                var time = element['time'].toISOString();
+                // var time = element['time'].getNanoTime();
+                ogc_observation['@iot.id'] = element['name'] + "-" + time;
+                ogc_observation['@iot.selfLink'] = domainUrl + '/req/observations(' + ogc_observation['@iot.id'] + ')';
+                ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
+                ogc_observation['phenomenonTime'] = new Date(time) ;
+                ogc_observation['resultTime'] = time;
+                ogc_observation['result'] = element['value'];
+                ogc_array.push(ogc_observation);      
+            });
+            res.json(ogc_array);
+            // res.json(result)
+        }).catch(err => {
+            res.status(500).send(err.stack)
+        })
+  } else {
+    return res.json("Invalid id");
+  }
+}
+
 exports.get_data_streams_by_thing_id = function (req,res) {
   var thing_id = req.params.id;  
   if (thing_id != null) {
@@ -203,8 +259,9 @@ function convertMongoToOGC(stream) {
   if (stream != null) {
     ogc_datastream['@iot.id'] = stream.get('_id');
     ogc_datastream['@iot.selfLink'] = domainUrl + '/req/datastreams(' + ogc_datastream['@iot.id'] + ')';
-    ogc_datastream["sensor@iot.navigationLink"] = '/req/datastreams(' + ogc_datastream['@iot.id'] + ')' + "/sensor";
-    ogc_datastream["thing@iot.navigationLink"] = '/req/datastreams(' + ogc_datastream['@iot.id'] + ')' + "/thing";
+    ogc_datastream["sensor@iot.navigationLink"] = 'datastreams(' + ogc_datastream['@iot.id'] + ')' + "/sensor";
+    ogc_datastream["thing@iot.navigationLink"] = 'datastreams(' + ogc_datastream['@iot.id'] + ')' + "/thing";
+    ogc_datastream["observations@iot.navigationLink"] = 'datastreams(' + ogc_datastream['@iot.id'] + ')' + "/observations";
     ogc_datastream["name"] = stream.get("name");
     ogc_datastream["description"] = stream.get("description");
     ogc_datastream["unitOfMeasurement"] = stream.get("unitOfMeasurement");

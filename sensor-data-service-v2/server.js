@@ -4,7 +4,7 @@ var express = require("express"), app = express(), port = process.env.port || 50
 
 const Influx = require('influx');
 const influx = new Influx.InfluxDB({
-    host: '34.67.130.25',
+    host: '34.69.148.86',
     port: 8086,
     database: 'mainflux',
     username: 'admin',
@@ -14,7 +14,7 @@ const influx = new Influx.InfluxDB({
 var mongoose = require('mongoose');
   // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://34.67.130.25/iot'); 
+mongoose.connect('mongodb://34.69.148.86/iot'); 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
