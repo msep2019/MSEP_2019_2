@@ -27,7 +27,7 @@ function getObservations(req, res) {
                 result.forEach(element => {
                     var time = element['time'].toISOString();
                     // var time = element['time'].getNanoTime();
-                    ogc_observation['@iot.id'] = element['name'].substring(12, 29) + '-' + element['name'].substring(30) + '-' + chunks[2];
+                    ogc_observation['@iot.id'] = element['name'] + "-" + element['time'].getNanoTime();
                     ogc_observation['@iot.selfLink'] = domainUrl +  '/req/observations(' + ogc_observation['@iot.id'] + ')';
                     ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
                     ogc_observation['phenomenonTime'] = time ;
@@ -45,13 +45,14 @@ function getObservations(req, res) {
             limit = req.query['$top'];
         } 
         var query_script = "SELECT * FROM messages ";
-        var condition = " WHERE ";
+        var condition = "";
         if (req.query['$filter'] != null) {
             // TODO: Use patterns to extract all functions and create query
             var filters = req.query['$filter'];
             condition = condition + parsingFilterForObservation(filters);
+            query_script = query_script + " WHERE " + condition;
         }
-        query_script = query_script + condition;
+        
         query_script = query_script + " LIMIT " + limit;
         console.log("Script " + query_script);
         var ogc_array = [];
@@ -70,7 +71,7 @@ function getObservations(req, res) {
                     ogc_array.push(ogc_observation);           
                     // console.log(ogc_array);         
                 });
-                res.json(ogc_array);                  
+                    res.json(ogc_array);                  
             }).catch(err => {
                 res.status(500).send(err.stack)
             })
@@ -104,7 +105,26 @@ function parsingFilterForObservation(filters) {
     var parts = filters.split(" ");     
     var condition = "";       
     parts.forEach(part =>{
-        condition = condition + " " + ogc_filter_influx_query_mapping[part] + " ";
+        if (ogc_filter_influx_query_mapping[part] != null) {
+          condition = condition + " " + ogc_filter_influx_query_mapping[part] + " ";
+        } else {
+          condition = condition + " " + part + " ";
+        }
+    });   
+    return condition;
+}
+  
+function parsingOrderByForObservation(orderby) {
+    // TODO: Use patterns to extract all functions and create query    
+    // Currently support only gt, ge, lt and le functions on result
+    var parts = orderby.split(" ");     
+    var condition = " ORDER BY ";       
+    parts.forEach(part =>{
+        if (ogc_filter_influx_query_mapping[part] != null) {
+            condition = condition + " " + ogc_filter_influx_query_mapping[part] + " ";
+        } else {
+            condition = condition + " " + part + " ";
+        }
     });   
     return condition;
 }

@@ -10,7 +10,7 @@ var mongoose = require('mongoose'),
   const datastream_fields = "_id sensor_id thing_id name description unitOfMeasurement phenomenonTime resultTime"  ;
 var sensor_controller = require("./sensor-controller");
 var thing_controller = require("./thing-controller");
-var ogc_filter_influx_query_mapping = {"result":"value", "gt": ">", "ge" : ">=", "lt" : "<", "le": "<=", "resultTime": "time"};
+var ogc_filter_influx_query_mapping = {"result":"value", "gt": ">", "ge" : ">=", "lt" : "<", "le": "<=", "resultTime": "time", "eq" : "=", "add": "+"};
 exports.get_stream = function(req, res) {
     influx_connection.influx.query(`
     select * from messages    
@@ -214,47 +214,48 @@ exports.get_data_stream_observations = function (req,res) {
     // for example: urn:dev:mac:f0:f8:f2:86:7a:82-ambienttemp-12121313-213131;
     // Get mac address and sensor type from configuration (DatastreamTagMapping)
     console.log("Datastream id " + datastream_id);
-    DatastreamTagMapping.findOne({"datastream_id": datastream_id}, "_id datastream_id mac sensor", function (err, mapping) {
-        if (err)
-            return res.send(err);
-        var mac = mapping.mac;
-        var sensor = mapping.sensor;
-        var query_script = "SELECT * FROM messages WHERE \"name\" =~ /.*" 
-        + mac + "-" + sensor + ".*/";
+    var query_script = "SELECT * FROM messages WHERE \"name\" =~ /.*" +
+        datastream_id + ".*/";
         
-        if (req.query['$filter'] != null) {
-          // TODO: Use patterns to extract all functions and create query
-          var filters = req.query['$filter'];
-          var condition = parsingFilterForObservation(filters);
-          query_script = query_script + " AND " + condition;
-        }
-        if (req.query['$orderby'] != null) {
-          var orderBy = parsingOrderByForObservation(req.query['$orderby']);
-          query_script = query_script + orderBy;
-        } 
-        query_script = query_script + " LIMIT " + limit;
-        console.log("Script " + query_script);
-        var ogc_array = [];
-        influxdb.query(query_script)
-        .then(result => {        
-        result.forEach(element => {
-          var ogc_observation = new Map;
-          var time = element['time'].toISOString();
-          // var time = element['time'].getNanoTime();
-          ogc_observation['@iot.id'] = element['name'] + "-" + datastream_id + "-" + element['time'].getNanoTime();
-          ogc_observation['@iot.selfLink'] = domainUrl + '/req/observations(' + ogc_observation['@iot.id'] + ')';
-          ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
-          ogc_observation['phenomenonTime'] = new Date(time) ;
-          ogc_observation['resultTime'] = time;
-          ogc_observation['result'] = element['value'];
-          ogc_array.push(ogc_observation);      
-        });
-        res.json(ogc_array);
-        // res.json(result)
-        }).catch(err => {
-        res.status(500).send(err.stack)
-        })
+    if (req.query['$filter'] != null) {
+      // TODO: Use patterns to extract all functions and create query
+      var filters = req.query['$filter'];
+      var condition = parsingFilterForObservation(filters);
+      query_script = query_script + " AND " + condition;
+    }
+    if (req.query['$orderby'] != null) {
+      var orderBy = parsingOrderByForObservation(req.query['$orderby']);
+      query_script = query_script + orderBy;
+    } 
+    query_script = query_script + " LIMIT " + limit;
+    console.log("Script " + query_script);
+    var ogc_array = [];
+    influxdb.query(query_script)
+    .then(result => {        
+    result.forEach(element => {
+      var ogc_observation = new Map;
+      var time = element['time'].toISOString();
+      // var time = element['time'].getNanoTime();
+      ogc_observation['@iot.id'] = element['name'] + "-" + element['time'].getNanoTime();
+      ogc_observation['@iot.selfLink'] = domainUrl + '/req/observations(' + ogc_observation['@iot.id'] + ')';
+      ogc_observation['datastream@iot.navigationLink'] = 'observations(' + ogc_observation['@iot.id'] + ')/datastream';                
+      ogc_observation['phenomenonTime'] = new Date(time) ;
+      ogc_observation['resultTime'] = time;
+      ogc_observation['result'] = element['value'];
+      ogc_array.push(ogc_observation);      
     });
+    res.json(ogc_array);
+    // res.json(result)
+    }).catch(err => {
+      res.status(500).send(err.stack)
+    })
+    // DatastreamTagMapping.findOne({"datastream_id": datastream_id}, "_id datastream_id mac sensor", function (err, mapping) {
+    //     if (err)
+    //         return res.send(err);
+    //     var mac = mapping.mac;
+    //     var sensor = mapping.sensor;
+        
+    // });
     
   } else {
     return res.json("Invalid id");
