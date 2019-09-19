@@ -1,4 +1,4 @@
-from bluepy import sensortag
+from bluepy import sensortag, btle
 import paho.mqtt.client as mqtt
 import threading
 import time
@@ -34,6 +34,7 @@ class TimerTask(Thread):
                 current_device_id = 0
                 # scanner = btle.Scanner()
                 # device_info_list = scanner.scan(15)
+                # print(device_info_list)
                 _redis = redis.StrictRedis(host="localhost", port=6379, db=0)
                 print("Try to detect sensors each %s seconds" % self.duration)
                 # search configured devices in db
@@ -108,7 +109,7 @@ class RetrievingDataThread(threading.Thread):
                     data_dict["gyroscope"] = self._sensor.gyroscope.read()
                     data_dict["light"] = self._sensor.lightmeter.read()
                     data_dict["battery"] = self._sensor.battery.read()
-                    self.push_to_redis(data_dict)
+                    # self.push_to_redis(data_dict)
                     self.push_to_mqtt(data_dict)
                 else:
                     self._retry_count += 1
@@ -210,8 +211,21 @@ class RetrievingDataThread(threading.Thread):
             humidity['v'] = data_dict['humidity'][1]
             senml_message.append(humidity)
 
+            # Get configured data streams based on MAC
+            # light_streams = config[data_dict['MAC']]['light']
+            # if light_streams is not None:
+            #     tmp_parts = light_streams.split(",")
+            #     for part in tmp_parts:
+            #         light = {}
+            #         light['n'] = 'light' + ":" + part
+            #         light['u'] = 'lux'
+            #         light['t'] = 0
+            #         light['v'] = data_dict['light']
+            #         senml_message.append(light)
+
+
             light = {}
-            light['n'] = 'light'
+            light['n'] = 'light' + ""
             light['u'] = 'lux'
             light['t'] = 0
             light['v'] = data_dict['light']
