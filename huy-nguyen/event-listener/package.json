@@ -1,0 +1,21 @@
+{
+  "name": "event-listener",
+  "version": "1.0.0",
+  "description": "A simple event listner for SimpleContract's events",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "solidity",
+    "smart",
+    "contract",
+    "truffle"
+  ],
+  "author": "Huy Nguyen",
+  "license": "ISC",
+  "dependencies": {
+    "request": "^2.88.0",
+    "web3": "^1.2.1"
+  }
+}

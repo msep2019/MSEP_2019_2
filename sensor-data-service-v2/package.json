@@ -1,0 +1,34 @@
+{
+  "name": "sensor-data-service",
+  "version": "2.0.0",
+  "description": "Service for retrieving sensor data from InfluxDB",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/msep2019/MSEP_2019_2.git"
+  },
+  "keywords": [
+    "sensortag",
+    "iot",
+    "influxdb"
+  ],
+  "author": "huy nguyen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/msep2019/MSEP_2019_2/issues"
+  },
+  "homepage": "https://github.com/msep2019/MSEP_2019_2#readme",
+  "devDependencies": {
+    "nodemon": "^1.19.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "influx": "^5.4.0",
+    "mongoose": "^5.6.9",
+    "properties-reader": "^0.3.1"
+  }
+}
