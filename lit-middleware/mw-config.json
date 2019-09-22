@@ -1,0 +1,7 @@
+{
+    "ownerAcc" : "0x9870A9CEdc2A5466d4c2Bc9b5277d4e26E032Fec",
+    "addrTestSite" : "",
+    "addrLIT" : "0xFF0b0d0b5D13225C80097eC0ED276a8D2F5b1776",
+    "addrRPC" : "ws://localhost:7545",
+    "addrContractArtifact" : "./"
+}
