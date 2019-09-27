@@ -12,5 +12,11 @@
     "docker"
   ],
   "author": "msep_group2",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "docker-compose": "^0.22.2",
+    "dockerode": "^3.0.1",
+    "web3": "^1.2.1",
+    "yaml-validator": "^2.2.0"
+  }
 }

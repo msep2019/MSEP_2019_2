@@ -2,6 +2,7 @@
     Its prime responsiblity is to call the underlying Docker Engine. 
 */
 const DockerCompose = require('docker-compose');
+const YamlValidator = require('yaml-validator');
 var fs = require('fs');
 class DaemonClass {
     constructor(_web3, _contractInstance, _addrOwner){
@@ -136,11 +137,41 @@ class DaemonClass {
             }
             console.log("The file was saved!");
         })
-        DockerCompose.upAll({ cwd: experimentFolder, log: true })
-            .then(
-                () => { console.log('done')},
-                err => { console.log('something went wrong:', err.message)}
-            );
+
+        // Default options
+        const options = {
+            log: false,
+            structure: false,
+            onWarning: null,
+            writeJson: false
+        };
+        const validator = new YamlValidator(options);
+        validator.validate([experimentFolder + "/docker-compose.yml"]);
+        console.log(validator.report());
+        // DockerCompose.upAll({ cwd: experimentFolder, log: true })
+        //     .then(function(result) {
+        //         console.log("---- Output ----");
+        //         console.log(result);
+        //         if (result.statusCode == 0) {
+        //             console.log('done');
+        //             console.log(result.out);
+        //         } else {
+        //             console.log('error');
+        //             console.log(result.err);
+        //         }
+
+        //     }).catch(function(result) {
+        //         console.log("---- Output ----");
+        //         console.log(result);
+        //         if (result.statusCode == 0) {
+        //             console.log('done');
+        //             console.log(result.out);
+        //         } else {
+        //             console.log('error');
+        //             console.log(result.err);
+        //         }
+        //     });
+                
         
 
         // VERSION 0.1 USE THIS MECHANISM TO KICKSTART THE ASYNC RESPONSE.
