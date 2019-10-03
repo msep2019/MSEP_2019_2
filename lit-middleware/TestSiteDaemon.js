@@ -4,6 +4,9 @@
 const DockerCompose = require('docker-compose');
 const YamlValidator = require('yaml-validator');
 var fs = require('fs');
+const Docker = require('dockerode');
+const docker = new Docker();
+var configMW = JSON.parse(fs.readFileSync("./mw-config.json").toString());
 class DaemonClass {
     constructor(_web3, _contractInstance, _addrOwner){
         this.web3 = _web3;
@@ -61,15 +64,15 @@ class DaemonClass {
         console.log("ExpID:" + this.web3.utils.bytesToHex(_expID));
         console.log("Exp code: " + _code);
 
-        const hostAddr = "127.0.0.1"
-        const knownImages = {
-            "grafana/grafana" : hostAddr + ":3000",
-            // "lite-server" : hostAddr + ":8080",
-        };
+        // const hostAddr = "127.0.0.1"
+        // const knownImages = {
+        //     "grafana/grafana" : hostAddr + ":3000",
+        //     // "lite-server" : hostAddr + ":8080",
+        // };
 
-        const Docker = require('dockerode');
-        const docker = new Docker();
-        let result = "";
+        // const Docker = require('dockerode');
+        // const docker = new Docker();
+        // let result = "";
 
         // if (_code in knownImages) {
             /*FIXME: Docker by itself does not allow the flexibility and complexity necessary to run an experiment.
@@ -125,13 +128,13 @@ class DaemonClass {
         //     result = "Couldn't find the required experiment code at the specified location";
         // }
         var experimentFolder = "./experiments/" + this.web3.utils.bytesToHex(_expID);
-        fs.mkdir(experimentFolder,  function(err){
+        fs.mkdirSync(experimentFolder,  function(err){
             if(err) {
                 return console.log(err);
             }
             console.log("The directory was created!");
         });
-        fs.writeFile(experimentFolder + "/docker-compose.yml", _code, function(err) {
+        fs.writeFileSync(experimentFolder + "/docker-compose.yml", _code, function(err) {
             if(err) {
                 return console.log(err);
             }
@@ -140,62 +143,109 @@ class DaemonClass {
 
         // Default options
         const options = {
-            log: false,
-            structure: false,
+            log: true,
+            structure: true,
             onWarning: null,
-            writeJson: false
+            writeJson: true
         };
-        const validator = new YamlValidator(options);
+        var validator = new YamlValidator(options);
         validator.validate([experimentFolder + "/docker-compose.yml"]);
-        console.log(validator.report());
-        // DockerCompose.upAll({ cwd: experimentFolder, log: true })
-        //     .then(function(result) {
-        //         console.log("---- Output ----");
-        //         console.log(result);
-        //         if (result.statusCode == 0) {
-        //             console.log('done');
-        //             console.log(result.out);
-        //         } else {
-        //             console.log('error');
-        //             console.log(result.err);
-        //         }
 
-        //     }).catch(function(result) {
-        //         console.log("---- Output ----");
+        // TODO: Validating docker compose file
+        if (validator.report() == 0) {
+            var generatedJSON = JSON.parse(fs.readFileSync(experimentFolder + "/docker-compose.json").toString());            
+            // console.log(generatedJSON['services']['grafana']['ports']);
+        }
+        // TODO: Stop instances before proceeding
+        // Compare the input service, image name, and port to stop correct image
+        // const Docker = require('dockerode');
+        // const docker = new Docker();
+
+        // DockerCompose.stop({ cwd: "./experiments/0xf19e3218ffae99ffad2ca623e6307144c6c3c2e0/docker-compose.json", log: true })
+        //     .then(function(result){
+        //         console.log("---- Stopping ----");
         //         console.log(result);
-        //         if (result.statusCode == 0) {
-        //             console.log('done');
-        //             console.log(result.out);
-        //         } else {
-        //             console.log('error');
-        //             console.log(result.err);
-        //         }
-        //     });
-                
-        
+        //     }).catch (function(err){
+        //         console.log(err);
+        //     }); 
+
+        var deployingResult = {};
+        DockerCompose.upAll({ cwd: experimentFolder, log: true })
+            .then(function(result) {
+                // TODO: Extract data from output to get service names
+                console.log("---- Starting ----");
+                console.log(result);
+                if (result.statusCode == 0) {
+                    console.log('done');
+                    console.log(result.out);
+                    deployingResult['status'] = 0;
+                    deployingResult['message'] = result.out;
+                } else {
+                    console.log('error');
+                    console.log(result.err);
+                    deployingResult['status'] = 1;
+                    deployingResult['message'] = result.err;
+                }
+            }).catch(function(result) {
+                console.log('error');
+                console.log(result.err);
+                deployingResult['status'] = 1;
+                deployingResult['message'] = result.err;                
+            });
 
         // VERSION 0.1 USE THIS MECHANISM TO KICKSTART THE ASYNC RESPONSE.
         // IN FUTURE VERSION, THE COLLECT RESULT WILL BE CALLED WHEN THE EXPERIMENT IS DONE.
-        setTimeout((this.collectResult).bind(this), 3000, _expID, result);
+        setTimeout((this.collectResult).bind(this), 20000, _expID, deployingResult);
     }
 
-    // FIXME: Version 0.1 only return the address to access a container, which is hardcoded. 
+    // Collect containers performance statistics and urls
     collectResult(_expID, _result) {
         console.log("\nInside collectResult method:");
-        console.log("ExpID:" + this.web3.utils.bytesToHex(_expID));
+        console.log("ExpID:" + this.web3.utils.bytesToHex(_expID));        
+        // List containers base on name
+        var tmpString = this.web3.utils.bytesToHex(_expID);
+        
+        _result['containers'] = {};
+        docker.listContainers({filters:{name:[tmpString]}}).then(containers => {
+            console.log("List deployed containers");
+            console.log(containers);
+            containers.forEach(container => {
+                var tmpInfo = {};
+                tmpInfo['name'] = container.Names[0];
+                // TODO: Parsing ports 
+                var port = 3000;
+                tmpInfo['service_url'] = configMW['server_ip'] + ":" + port;
 
-        // VERSION 0.1 HAVE HARDCODED RESULT. IT IS ONLY FOR DEMONSTRATION PURPOSE
-        // let result = "http://127.0.0.1:5000";
-        this.reportExperimentResult(_expID, _result);
+                // TODO: Implement service for tracking performance
+                tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id;                    
+
+                // Retrieving performance stats
+                var tmpContainer = docker.getContainer(container.Id);                    
+                tmpContainer.stats({stream:false}).then(function(stats) {
+                    tmpInfo['performance_stats'] = DaemonClass.calculatePerformanceStats(stats);
+                    _result['containers'][container.Image] = tmpInfo;
+                }).catch(function (err_stats){
+                    console.log("Error while retrieving container stats");
+                    console.log(err_stats);
+                });
+            });
+            // TODO: Use synchronous call instead of using timeout
+            setTimeout((this.reportExperimentResult).bind(this), 3000, _expID, _result);            
+        }).catch(err => {
+            console.log("Error in geting containers");
+            console.log(err);
+            this.reportExperimentResult(_expID, _result);
+        });
+        
     }
 
     reportExperimentResult(_expID, _result) {
         console.log("\nInside reportExperimentResult method:");
         console.log("ExpID:" + this.web3.utils.bytesToHex(_expID));
-        console.log("Exp result: " + _result);
+        console.log("Exp result: " + JSON.stringify(_result));
 
         // Submit the result back to the smart contract
-        this.contractInstance.methods.updateExperimentResult(this.web3.utils.bytesToHex(_expID), _result).send({
+        this.contractInstance.methods.updateExperimentResult(this.web3.utils.bytesToHex(_expID), JSON.stringify(_result)).send({
             from : this.addrOwner,
             gas : 3000000,
         }).then((receipt) => {
@@ -203,6 +253,31 @@ class DaemonClass {
             // console.log(receipt);
         });
     }
+
+    static calculatePerformanceStats(stats) {        
+        console.log("--------Stats---------");        
+        console.log(stats);
+        var result = {};
+        try {
+            result['mem_usage'] = stats['memory_stats']['usage'];
+            result['mem_max_usage'] = stats['memory_stats']['max_usage'];
+            result['mem_limit'] = stats['memory_stats']['limit'];
+            
+            let delta_total_usage = stats.cpu_stats.cpu_usage.total_usage - stats.precpu_stats.cpu_usage.total_usage;
+            let delta_system_usage = stats.cpu_stats.system_cpu_usage - stats.precpu_stats.system_cpu_usage;
+            let percentage = delta_total_usage / delta_system_usage * stats.cpu_stats.cpu_usage.percpu_usage.length * 100.0;
+            result['cpu_percentage'] = percentage;
+            
+            // TODO: Calculate Network IO and Block IO
+        } catch (e) {
+            console.log("Error in calculate performance stats");
+            console.log(e);
+        }
+        
+        return result;
+    }
+
+    
 }
 
 // module.exports.TestSiteDaemon = DaemonClass
