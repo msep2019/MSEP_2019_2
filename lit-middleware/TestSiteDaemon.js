@@ -213,7 +213,14 @@ class DaemonClass {
                 var tmpInfo = {};
                 tmpInfo['name'] = container.Names[0];
                 // TODO: Parsing ports 
-                var port = 3000;
+                //var port = 3000;
+                var port = findingPort(container);
+                console.log(container.Ports);
+                console.log(container.Ports[0]);
+                console.log(container.Ports[0].PublicPort);
+
+                
+
                 tmpInfo['service_url'] = configMW['server_ip'] + ":" + port;
 
                 // TODO: Implement service for tracking performance
