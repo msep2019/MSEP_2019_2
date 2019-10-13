@@ -4,6 +4,6 @@
     "addrLIT" : "0x7B758d356d167611Ce8D46f4045a787843168F32",
     "addrRPC" : "ws://localhost:7545",
     "addrContractArtifact" : "./",
-    "server_ip": "127.0.0.1",
+    "server_host": "http://127.0.0.1",
     "statistic_service": "http://localhost:5000/stats/containers"
 }

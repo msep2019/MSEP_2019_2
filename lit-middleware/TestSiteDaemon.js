@@ -212,18 +212,15 @@ class DaemonClass {
             containers.forEach(container => {
                 var tmpInfo = {};
                 tmpInfo['name'] = container.Names[0];
-                // Get all ports
-                
                 var serviceURLs = [];
-                console.log(container.Ports);
-                console.log(container.Ports[0]);
-                console.log(container.Ports[0].PublicPort);
+                // Get all ports
                 container.Ports.forEach(function(port) {
-                    var tmpURL = configMW['server_ip'] + ":" + port;
+                    if (!isNaN(port.PublicPort)) {
+                        var tmpURL = configMW['server_host'] + ":" + port.PublicPort;
+                    serviceURLs.push(tmpURL);
+                    }
                 });
                 
-
-                tmpInfo['service_url'] = configMW['server_ip'] + ":" + port;
                 tmpINfo['service_url'] = serviceURLs;
                 // TODO: Implement service for tracking performance
                 tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id;                    
