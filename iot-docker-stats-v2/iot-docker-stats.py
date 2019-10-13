@@ -29,6 +29,23 @@ try:
 except:
     client = docker.DockerClient(config["docker"]["url"])
 
+class Worker:
+    _exit_flag = False
+
+    def __init__(self, socketio, container_id, session_id):
+        self.socketio = socketio
+        self.container_id = container_id
+        self.session_id = session_id
+        super(Worker, self).__init__()
+
+    def run(self):
+        docker_client = docker.from_env()
+        while not self._exit_flag:
+            container = docker_client.containers.get(self.container_id)
+            final_stats = generate_container_stats(container)
+            self.socketio.emit("stats", json.dumps(final_stats), room=self.session_id, namespace="/stats")
+    def stop(self):
+        self._exit_flag = True
 
 def main():
     # client = docker.DockerClient(base_url='http://127.0.0.1:2375')
@@ -54,11 +71,7 @@ def index():
 def get_container_stats(container_id):
     docker_client = docker.from_env()
     container = docker_client.containers.get(container_id)
-    stats = container.stats(stream=False)
-    print(stats)
-    final_stats = {}
-    final_stats['cpu_percentage'] = calculate_cpu_percent(stats)
-    return jsonify(final_stats)
+    return jsonify(generate_container_stats(container))
 
 @socketio.on('container', namespace="/stats")
 def container_stat(message):
@@ -154,28 +167,18 @@ def calculate_cpu_percent(data):
     return cpu_percent
 
 
-class Worker:
-    _exit_flag = False
+def generate_container_stats(container):
+    result = {}
+    stats = container.stats(stream=False)
+    print(container.attrs['Config'])
+    print(stats)
+    result['cpu_percentage'] = calculate_cpu_percent(stats)
+    result['image'] = container.attrs['Config']['Image']
+    result['port_bindings'] = container.attrs['HostConfig']['PortBindings']
+    return result
 
-    def __init__(self, socketio, container_id, session_id):
-        self.socketio = socketio
-        self.container_id = container_id
-        self.session_id = session_id
-        super(Worker, self).__init__()
 
-    def run(self):
-        docker_client = docker.from_env()
-        while not self._exit_flag:
-            container = docker_client.containers.get(self.container_id)
-            stats = container.stats(stream=False)
-            print(stats)
-            final_stats = {}
-            final_stats['cpu_percentage'] = calculate_cpu_percent(stats)
-            # client_sid[self.threadID].emit("stats", json.dumps(final_stats))
-            self.socketio.emit("stats", json.dumps(final_stats), room=self.session_id, namespace="/stats")
-    def stop(self):
-        self._exit_flag = True
 
-if __name__ == "__main__":
-    main()
+
+main()
 

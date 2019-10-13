@@ -212,7 +212,9 @@ class DaemonClass {
             containers.forEach(container => {
                 var tmpInfo = {};
                 tmpInfo['name'] = container.Names[0];
-                // TODO: Parsing ports 
+                // TODO: Parsing ports
+                console.log("ports:");
+                console.log(container.Ports);
                 var port = 3000;
                 tmpInfo['service_url'] = configMW['server_ip'] + ":" + port;
 
@@ -257,8 +259,10 @@ class DaemonClass {
     static calculatePerformanceStats(stats) {        
         console.log("--------Stats---------");        
         console.log(stats);
+        // console.log(stats['blkio_stats']);
         var result = {};
         try {
+            result['read_time'] = stats['read'];
             result['mem_usage'] = stats['memory_stats']['usage'];
             result['mem_max_usage'] = stats['memory_stats']['max_usage'];
             result['mem_limit'] = stats['memory_stats']['limit'];
@@ -268,7 +272,48 @@ class DaemonClass {
             let percentage = delta_total_usage / delta_system_usage * stats.cpu_stats.cpu_usage.percpu_usage.length * 100.0;
             result['cpu_percentage'] = percentage;
             
-            // TODO: Calculate Network IO and Block IO
+            // Calculate network io
+            var networks = stats.networks;
+            var totalRev = 0;
+            var totalSend = 0;
+            console.log('--------- Networks -----------')
+            console.log(networks);
+            Object.keys(networks).forEach(function (key) {
+                var val = networks[key];
+                totalRev = totalRev + val['rx_bytes'];
+                totalSend = totalSend + val['tx_bytes'];
+            });
+            // networks.forEach(network => {
+            //     totalRev = totalRev + network['rx_bytes'];
+            //     totalSend = totalSend + network['tx_bytes'];
+            // })
+            result['network_input'] = totalRev;
+            result['network_output'] = totalSend;
+
+            // Calculate running time
+            var currentTime = Date.now();
+            var readTime = Date.parse(stats['read']);
+            var upTime = currentTime - readTime;            
+            result['running_time'] = upTime;
+
+            // Calculate disk IO (accumulate)
+            // var diskIOStats = stats['blkio_stats']['io_service_bytes_recursive'];
+            var diskIOStats = stats.blkio_stats.io_service_bytes_recursive;
+            var diskReadBytes = 0;
+            var diskWriteBytes = 0;
+            console.log(diskIOStats);
+            diskIOStats.forEach(row => {
+                if (row['op'] == 'Read') {
+                    diskReadBytes = diskReadBytes + row['value'];
+                }
+                if (row['op'] == 'Write') {
+                    diskWriteBytes = diskWriteBytes + row['value'];
+                }
+            })            
+            result['disk_read'] = diskReadBytes;
+            result['disk_write'] = diskWriteBytes;
+
+
         } catch (e) {
             console.log("Error in calculate performance stats");
             console.log(e);
