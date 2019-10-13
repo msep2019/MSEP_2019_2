@@ -221,7 +221,7 @@ class DaemonClass {
                     }
                 });
                 
-                tmpINfo['service_url'] = serviceURLs;
+                tmpInfo['service_urls'] = serviceURLs;
                 // TODO: Implement service for tracking performance
                 tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id;                    
 
