@@ -1,10 +1,11 @@
-var express = require("express"), app = express(), port = process.env.port || 5000;
-
-
-
+var express = require("express"), app = express(), port = process.env.port || 7000, websocket_port = 7005;
+const WebSocket = require('ws');
 const Influx = require('influx');
+const http = require('http');
+const cors = require('cors');
+
 const influx = new Influx.InfluxDB({
-    host: '34.69.148.86',
+    host: '35.239.129.255',
     port: 8086,
     database: 'mainflux',
     username: 'admin',
@@ -14,7 +15,7 @@ const influx = new Influx.InfluxDB({
 var mongoose = require('mongoose');
   // mongoose instance connection url connection
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://34.69.148.86/iot'); 
+mongoose.connect('mongodb://35.239.129.255/iot'); 
 mongoose.set('useNewUrlParser', true);
 mongoose.set('useFindAndModify', false);
 mongoose.set('useCreateIndex', true);
@@ -29,8 +30,43 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());  
 
 var routes = require('./api/routes/data-route'); //importing route
-routes(app); //register the route    
+routes(app); //register the route   
+// app.use(cors());
+// app.options('*', cors());
+// TODO: Remove this line in future. Currently used for testing
+// app.use(cors({credentials: true, origin: 'http://localhost:5000'}));
 app.listen(port);
 console.log("IoT data server started on port: " + port);
+const server = http.createServer(app);
+// Start websocket 
+const wss = new WebSocket.Server({server});
+console.log("IoT data server websocket started on port: " + websocket_port);
+
+var data_stream_controller = require('./api/controllers/data-stream-controller');
+
+// Register events for websocket server
+wss.on("connection", async function connection(ws) {
+  console.log("------------------Web socket--------------------- ");
+  // console.log(ws);
+  ws.on('message', async function incoming(message) {
+    console.log('received: %s', message);
+    if (message == 'datastreams') {
+      // console.log(JSON.stringify(data_stream_controller.getAllDatastreams()));
+      datastream_result = await data_stream_controller.getAllDatastreams();
+      console.log("Test async");
+      setTimeout(function() {
+        console.log("Result " + datastream_result);
+        if (datastream_result != null) {
+          console.log(datastream_result[0]['@iot.id']);
+          ws.send(JSON.stringify(datastream_result));
+        }
+      }, 3000);
+      
+    } else {
+      ws.send(JSON.stringify({"message":"successfully received message"}));
+    }
+  });
+});
+server.listen(websocket_port);
 
 

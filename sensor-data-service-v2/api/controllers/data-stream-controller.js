@@ -283,6 +283,27 @@ exports.get_data_streams_by_thing_id = function (req,res) {
   }
 }
 
+exports.getAllDatastreams = function () {
+  console.log("enter hers");
+  var promise = new Promise(function(resolve, reject) {
+    Datastream.find().exec(function(err, docs) {
+      if (err) {
+        console.log("Error " + err);
+        reject(err);
+      }    
+      var result_array = [];
+      if (docs != null) {
+        console.log(docs);
+        docs.forEach(function(doc) {
+          result_array.push(convertMongoToOGC(doc));
+          resolve(result_array);
+        });
+      }
+    });
+  });
+  return promise;
+}
+
 function convertMongoToOGC(stream) {
   var ogc_datastream = new Map;  
   if (stream != null) {
@@ -329,3 +350,4 @@ function parsingOrderByForObservation(orderby) {
   });   
   return condition;
 }
+

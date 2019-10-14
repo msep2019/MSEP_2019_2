@@ -2,11 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="a591459f-f1d6-4c9c-9cd1-99fb287eff03" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" beforeDir="false" afterPath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../lit-middleware/mw-config.json" beforeDir="false" afterPath="$PROJECT_DIR$/../lit-middleware/mw-config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../sensor-data-collector/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../sensor-data-collector/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../sensor-data-service-v2/server.js" beforeDir="false" afterPath="$PROJECT_DIR$/../sensor-data-service-v2/server.js" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
