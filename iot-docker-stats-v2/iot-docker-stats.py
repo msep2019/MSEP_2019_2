@@ -7,9 +7,14 @@ import time
 import json
 import http.client
 import threading
+import schedule
+import pymongo
+import re
 from flask import Flask, render_template, request, jsonify
 from flask_socketio import SocketIO, emit
-
+from pymongo import MongoClient
+from bson.json_util import dumps, RELAXED_JSON_OPTIONS
+import dateutil.parser
 
 async_mode = "eventlet"
 
@@ -23,6 +28,12 @@ config.read('conf.ini')
 sid = []
 client_sid = {}
 client_workers = {}
+threads = {}
+pattern = '[\w]x[\w]*_'
+container_start_time = {}
+mongoclient = MongoClient('mongodb+srv://iot-testbed:iot-testbed@cluster0-txati.gcp.mongodb.net/test?retryWrites=true&w=majority')
+dockerStatsDb = mongoclient.dockerstats
+
 try:
     # client = docker.DockerClient(config["docker"]["url"])
     client = docker.from_env()
@@ -45,6 +56,7 @@ class Worker:
             container = docker_client.containers.get(self.container_id)
             final_stats = generate_container_stats(container)
             self.socketio.emit("stats", json.dumps(final_stats), room=self.session_id, namespace="/stats")
+
     def stop(self):
         self._exit_flag = True
 
@@ -61,9 +73,102 @@ def main():
     #         stats = container.stats(stream=False)
     #         # all_stats.extend(generateSenMLData(stats))
     #     # sendDataToService(all_stats)
+    trackingThread = TrackingContainerThread(client)
+    trackingThread.start()
     print("start socket io")
     socketio.run(app, debug=True)
+    # compiledPattern = re.compile(pattern)
+    # print(bool(compiledPattern.match('0x1d00523b820fFF8AC51480D687b0fEb1799B2227_')))
 
+
+
+class TrackingContainerThread(threading.Thread):
+    docker_client = None
+
+    def __init__(self, docker_client):
+        threading.Thread.__init__(self)
+        self.docker_client = docker_client
+
+    def run(self):
+        print("In tracking thread")
+        schedule.every(10).seconds.do(self.collect_docker_stats)
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+
+    def collect_docker_stats(self):
+        print("Get containers")
+        containers = self.docker_client.containers.list(filters={"name":pattern})
+        for container in containers:
+            print(container.id)
+            if container.id in threads:
+                # Get running time
+                if time.time() - container_start_time[container.id] > 30:
+                    threads[container.id].stop()
+                    threads.pop(container.id)
+                    container_start_time.pop(container.id)
+                    container.stop()
+            else:
+                container_start_time[container.id] = time.time()
+                thread = ContainerStatsCollectorThread(container)
+                threads[container.id] = thread
+                thread.start()
+                # stats = container.stats(stream=False)
+
+class ContainerStatsCollectorThread(threading.Thread):
+    _container = None
+    _stopFlag = False
+    def __init__(self, container):
+        threading.Thread.__init__(self)
+        self._container = container
+
+    def run(self):
+        for stat in self._container.stats(stream=True, decode=True):
+            if not self._stopFlag:
+                print('In thread ' + self._container.id)
+                result = dockerStatsDb.stats.insert_one(self.generate_container_stats(self._container.name, stat))
+                print(result)
+                time.sleep(2)
+            else:
+                break
+
+    def stop(self):
+        self._stopFlag = True
+
+    def generate_container_stats(self, container_name, stat):
+        print(stat)
+        result = {}
+        result['container_name'] = container_name
+        result['container_id'] = stat['id']
+        result['read_time'] = dateutil.parser.parse(stat['read'])
+        result['cpu_percentage'] = calculate_cpu_percent(stat)
+        result['mem_usage'] = stat['memory_stats']['usage']
+        result['mem_max_usage'] = stat['memory_stats']['max_usage']
+        result['mem_limit'] = stat['memory_stats']['limit']
+
+        # Calculate network stats
+        networks = stat['networks']
+        totalRev = 0
+        totalSend = 0
+        for network in networks :
+            print(network)
+            totalRev = totalRev + networks[network]['rx_bytes']
+            totalSend = totalSend + networks[network]['tx_bytes']
+        result['network_input'] = totalRev
+        result['network_output'] = totalSend
+
+        # Calculate io stats
+        accumulate_read = 0
+        accumulate_write = 0
+        iorows = stat['blkio_stats']['io_service_bytes_recursive']
+        for row in iorows:
+            if row['op'] == 'Read':
+                accumulate_read = row['value']
+            if row['op'] == 'Write':
+                accumulate_write = row['value']
+        result['accumulate_read'] = accumulate_read
+        result['accumulate_write'] = accumulate_write
+        return result
 
 @app.route('/')
 def index():
@@ -73,12 +178,23 @@ def index():
 def restful():
     return render_template('websocket-test-restfulAPI.html')
 
-
-@app.route('/stats/containers/<string:container_id>', methods=['GET'])
+@app.route('/stats/containers/<string:container_id>/', methods=['GET'])
 def get_container_stats(container_id):
-    docker_client = docker.from_env()
-    container = docker_client.containers.get(container_id)
-    return jsonify(generate_container_stats(container))
+    # docker_client = docker.from_env()
+    # container = docker_client.containers.get(container_id)
+    # return jsonify(generate_container_stats(container))
+    stats = dockerStatsDb.stats.find({'container_id':container_id})
+    json_stats = dumps(stats, json_options=RELAXED_JSON_OPTIONS)
+    stats_array = json.loads(json_stats)
+    return render_template('container-stats.html', container_id=container_id, stats=stats_array)
+
+@app.route('/stats/containers/<string:container_id>/raw', methods=['GET'])
+def get_container_stats_raw(container_id):
+    # docker_client = docker.from_env()
+    # container = docker_client.containers.get(container_id)
+    # return jsonify(generate_container_stats(container))
+    stats = dockerStatsDb.stats.find({'container_id':container_id})
+    return dumps(stats)
 
 @socketio.on('container', namespace="/stats")
 def container_stat(message):
@@ -168,8 +284,12 @@ def calculate_cpu_percent(data):
     cpu_percent = 0.0
     cpu_delta = float(data["cpu_stats"]["cpu_usage"]["total_usage"]) - \
                 float(data["precpu_stats"]["cpu_usage"]["total_usage"])
-    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - \
-                   float(data["precpu_stats"]["system_cpu_usage"])
+
+    previous_system_cpu_usage = 0
+    if "system_cpu_usage" in data["precpu_stats"]:
+        previous_system_cpu_usage = float(data["precpu_stats"]["system_cpu_usage"])
+
+    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - previous_system_cpu_usage
     if system_delta > 0.0:
         cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
     return cpu_percent
@@ -185,8 +305,43 @@ def generate_container_stats(container):
     result['port_bindings'] = container.attrs['HostConfig']['PortBindings']
     return result
 
+# def convert_mongo_docs_to_dict(docs):
+#     final_result = []
+#     for doc in docs:
+#         result = {}
+#         result['container_name'] = doc['container_name']
+#         result['container_id'] = doc['id']
+#         result['read_time'] = dateutil.parser.parse(stat['read'])
+#         result['cpu_percentage'] = calculate_cpu_percent(stat)
+#         result['mem_usage'] = stat['memory_stats']['usage']
+#         result['mem_max_usage'] = stat['memory_stats']['max_usage']
+#         result['mem_limit'] = stat['memory_stats']['limit']
+#
+#         # Calculate network stats
+#         networks = stat['networks']
+#         totalRev = 0
+#         totalSend = 0
+#         for network in networks:
+#             print(network)
+#             totalRev = totalRev + networks[network]['rx_bytes']
+#             totalSend = totalSend + networks[network]['tx_bytes']
+#         result['network_input'] = totalRev
+#         result['network_output'] = totalSend
+#
+#         # Calculate io stats
+#         accumulate_read = 0
+#         accumulate_write = 0
+#         iorows = stat['blkio_stats']['io_service_bytes_recursive']
+#         for row in iorows:
+#             if row['op'] == 'Read':
+#                 accumulate_read = row['value']
+#             if row['op'] == 'Write':
+#                 accumulate_write = row['value']
+#         result['accumulate_read'] = accumulate_read
+#         result['accumulate_write'] = accumulate_write
+#         return result
 
 
-
-main()
+if __name__ == "__main__":
+    main()
 
