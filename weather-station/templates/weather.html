@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Weather station</title>
+    <style>
+        .speech-bubble {
+            position: relative;
+            background: #a4d1ff;
+            border-radius: .4em;
+        }
+
+        .speech-bubble:after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            width: 0;
+            height: 0;
+            border: 20px solid transparent;
+            border-right-color: #a4d1ff;
+            border-left: 0;
+            border-bottom: 0;
+            margin-top: -10px;
+            margin-left: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row m-1">
+            <h1 class="text-info">Dummy Weather Station</h1>
+        </div>
+    </div>
+    <div class="container">
+        <div class="row m-1">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                      <img src="/static/images/iconfinder_weather-01_1530392.png" class="card-img" alt="sunny" id="light_image_sunny">
+                        <img src="/static/images/iconfinder_weather-02_1530391.png" class="card-img" alt="cloudy" id="light_image_cloudy" style="display:none">
+                        <img src="/static/images/iconfinder_weather-22_1530369.png" class="card-img" alt="shady" id="light_image_shady" style="display:none">
+                        <img src="/static/images/iconfinder_weather-10_1530382.png" class="card-img" alt="night" id="light_image_night" style="display:none">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                          <br/>
+                          <p class="card-text"><span id="lux_value" class="text-primary"></span> Lux </p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                      <img src="/static/images/celsius.png" class="card-img" alt="celcius">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                            <h5 class="card-title" id="current_temperature"></h5>
+                            <p class="card-text">Highest <span id="highest_temp"></span></p>
+                            <p class="card-text">Lowest  <span id="lowest_temp"></span></p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                      <img src="/static/images/humidity.png" class="card-img" alt="humidity">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                          <h5 class="card-title">Humidity <span id="humidity"></span>%</h5>
+                          <p class="card-text">Chance to rain <span id="chance_to_rain"></span>%</p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                      <img src="/static/images/wind.png" class="card-img" alt="wind">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                          <h5 class="card-title">Now <span id="wind"></span> km/h</h5>
+                          <p class="card-text">Highest <span id="highest_wind"></span> km/h</p>
+                          <p class="card-text">Lowest <span id="lowest_wind"></span >km/h</p>
+                      </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col-md-12">
+                <div class="row no-gutters">
+                    <div class="col-md-2">
+                      <img src="/static/images/robot.png" class="card-img" alt="robot">
+                    </div>
+                    <div class="col-md-10">
+                     <div class="speech-bubble">
+                         <p id="suggestion"></p>
+                         <p> </p>
+                     </div>
+                    </div>
+                  </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+    <script>
+        function requestSensorData() {
+            $.getJSON({
+              url: "/sensor/data",
+              success: function(data) {
+                  console.log(data);
+                  $("#lux_value")[0].innerHTML = data['light'];
+                  var images = $('img[id^="light_image_"]').each(function(index) {
+                    $(this).hide()
+                  });
+                  if (data['light'] > 150) {
+                    $('#light_image_sunny').show();
+                  } else if (data['light'] > 100) {
+                    console.log("Enter change to cloudy");
+                    $('#light_image_cloudy').css("card-img");
+                    $('#light_image_cloudy').show();
+                  } else if (data['light'] > 60) {
+                    $('#light_image_shady').show();
+                  } else {
+                    $('#light_image_night').show();
+                  }
+                  $("#current_temperature")[0].innerHTML = "<span class='text-warning'>" + data['temperature'] + "</span>";
+                  $("#highest_temp")[0].innerHTML = data['highest_temp'];
+                  $("#lowest_temp")[0].innerHTML = data['lowest_temp'];
+                  $("#humidity")[0].innerHTML = data['humidity'].toFixed(0);
+                  $("#chance_to_rain")[0].innerHTML = data['chance_to_rain'].toFixed(0);
+                  $("#wind")[0].innerHTML = data['wind'];
+                  $("#highest_wind")[0].innerHTML = data['highest_wind'];
+                  $("#lowest_wind")[0].innerHTML = data['lowest_wind'];
+                  $("#suggestion")[0].innerHTML = data['suggestion'];
+              },
+              error: function() {
+              },
+              cache: false
+            });
+        }
+        requestSensorData();
+        setInterval(requestSensorData, 10000);
+
+    </script>
+</body>
+</html>
