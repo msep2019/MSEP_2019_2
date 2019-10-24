@@ -1,7 +1,7 @@
 {
-    "ownerAcc" : "0x580e0E8bd9F30b241633fBCa8FF0f93a05bE1dCe",
+    "ownerAcc" : "0xE1620F73B30213175e3b07A6AfD890f3B6b667d1",
     "addrTestSite" : "",
-    "addrLIT" : "0xEb6A9fdae6317d1695eaBF59cB9de303A755C943",
+    "addrLIT" : "0x1d00523b820fFF8AC51480D687b0fEb1799B2227",
     "addrRPC" : "ws://localhost:7545",
     "addrContractArtifact" : "./",
     "server_host": "http://127.0.0.1",

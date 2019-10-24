@@ -175,11 +175,11 @@ class DaemonClass {
                 // TODO: Extract data from output to get service names
                 console.log("---- Starting ----");
                 console.log(result);
-                if (result.statusCode == 0) {
+                if (result.exitCode == 0) {
                     console.log('done');
                     console.log(result.out);
                     deployingResult['status'] = 0;
-                    deployingResult['message'] = result.out;
+                    // deployingResult['message'] = result.out;
                 } else {
                     console.log('error');
                     console.log(result.err);
@@ -217,18 +217,19 @@ class DaemonClass {
                 container.Ports.forEach(function(port) {
                     if (!isNaN(port.PublicPort)) {
                         var tmpURL = configMW['server_host'] + ":" + port.PublicPort;
-                    serviceURLs.push(tmpURL);
+                        serviceURLs.push(tmpURL);
                     }
                 });
                 
                 tmpInfo['service_urls'] = serviceURLs;
-                // TODO: Implement service for tracking performance
-                tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id;                    
+                // Return the URL of statistic tracking for this container.
+                // Use the short version of container id
+                tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id.substring(0,10);                    
 
                 // Retrieving performance stats
                 var tmpContainer = docker.getContainer(container.Id);                    
                 tmpContainer.stats({stream:false}).then(function(stats) {
-                    tmpInfo['performance_stats'] = DaemonClass.calculatePerformanceStats(stats);
+                    // tmpInfo['performance_stats'] = DaemonClass.calculatePerformanceStats(stats);
                     _result['containers'][container.Image] = tmpInfo;
                 }).catch(function (err_stats){
                     console.log("Error while retrieving container stats");
@@ -316,7 +317,7 @@ class DaemonClass {
             })            
             result['disk_read'] = diskReadBytes;
             result['disk_write'] = diskWriteBytes;
-
+            
 
         } catch (e) {
             console.log("Error in calculate performance stats");
