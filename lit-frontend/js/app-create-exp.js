@@ -195,7 +195,7 @@ App = {
       return App.getTextInput(item);
     });
     codeLocator = App.getTextArea("_codeLocator");
-    console.log("Locator code " + App.getTextInput("_codeLocator"));
+    console.log("Locator code " + codeLocator);
    
     var creatorAcc = App.creatorAcc;
     App.experiment = {
@@ -229,6 +229,9 @@ App = {
           //   console.log(error)
           // });
           return;
+        } else {
+          console.log("Error");
+          console.log();
         }
         
       });
@@ -262,10 +265,13 @@ App = {
         
       });
       
-      return instance.createExperiment(App.experiment.homepage, App.experiment.relatedArtifact, App.experiment.input, App.experiment.measurement, App.experiment.code, {from : creatorAcc, gas : 900000});
+      console.log(instance.createExperiment(App.experiment.homepage, App.experiment.relatedArtifact, App.experiment.input, App.experiment.measurement, App.experiment.code, {from : creatorAcc, gas : 900000}));
+      return;
       // return instance.userExperiments(creatorAcc);
     }).then((tx) => {
       console.log(tx);
+    }).catch(error => {
+      console.log(error);
     });
     // console.log(contractInstance.createExperiment(App.experiment.homepage, App.experiment.relatedArtifact, App.experiment.input, App.experiment.measurement, App.experiment.code));
   }

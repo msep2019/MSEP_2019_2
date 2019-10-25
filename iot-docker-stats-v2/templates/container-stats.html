@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Performance statistics - {{container_id}}</title>
+</head>
+<body>
+    <div class="container">
+        <div class="row m-1">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-header bg-danger">
+                     Container
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Container</h5>
+                        <p class="card-text">Id: {{container_id}}</p>
+                        <p class="card-text">Name: {{stats[0]['container_name']}}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-primary">
+                     CPU
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">CPU(Percentage)</h5>
+                        <canvas id="cpu-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-info">
+                     Memory
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Memory(MB)</h5>
+                        <canvas id="mem-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row m-1">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-warning">
+                     Disk I/O
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Disk I/O stats(KB)</h5>
+                        <canvas id="diskio-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header bg-success">
+                     Network I/O
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Network I/O stats(KB)</h5>
+                        <canvas id="networkio-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+    <script>
+        window.chartColors = {
+            red: 'rgb(255, 99, 132)',
+            orange: 'rgb(255, 159, 64)',
+            yellow: 'rgb(255, 205, 86)',
+            green: 'rgb(75, 192, 192)',
+            blue: 'rgb(54, 162, 235)',
+            purple: 'rgb(153, 102, 255)',
+            grey: 'rgb(201, 203, 207)'
+        };
+        var stats = JSON.parse('{{stats | tojson}}');
+        console.log(stats);
+        var color = Chart.helpers.color;
+        var time_list = [];
+        var cpu_list = [];
+        var mem_list = [];
+        var mem_max_list = [];
+        var mem_limit_list = [];
+        var disk_in = [];
+        var disk_out = [];
+        var network_in = [];
+        var network_out = [];
+        stats.forEach(function(currentStat, index) {
+            time_list.push(currentStat['read_time']['$date']);
+            cpu_list.push(currentStat['cpu_percentage']);
+            mem_list.push(currentStat['mem_usage']/(1024*1024));
+            mem_max_list.push(currentStat['mem_max_usage']/(1024*1024));
+            mem_limit_list.push(currentStat['mem_limit']/(1024*1024));
+            disk_in.push(currentStat['accumulate_read']/1024);
+            disk_out.push(currentStat['accumulate_write']/1024);
+            network_in.push(currentStat['network_input']/1024);
+            network_out.push(currentStat['network_output']/1024);
+        });
+
+        var ctx = document.getElementById('cpu-chart').getContext('2d');
+        var cpuChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: time_list,
+                datasets: [{
+                    label: 'CPU',
+                    data: cpu_list,
+                    borderWidth: 1,
+                    backgroundColor: color(window.chartColors['red']).alpha(0.5).rgbString(),
+					borderColor: window.chartColors['red'],
+					fill: false,
+                }]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+						type: 'time',
+						distribution: 'series',
+						ticks: {
+							source: 'data',
+							autoSkip: true
+						},
+						time: {
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss'
+                            }
+                        }
+					}],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: false
+                        }
+                    }]
+                }
+            }
+        });
+        var mem_ctx = document.getElementById('mem-chart').getContext('2d');
+        var memChart = new Chart(mem_ctx, {
+            type: 'line',
+            data: {
+                labels: time_list,
+                datasets: [{
+                    label: 'Usage',
+                    data: mem_list,
+                    borderWidth: 1,
+                    backgroundColor: color(window.chartColors['blue']).alpha(0.5).rgbString(),
+					borderColor: window.chartColors['blue'],
+					fill: false,
+                }
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+						type: 'time',
+						distribution: 'series',
+						ticks: {
+							source: 'data',
+							autoSkip: true
+						},
+						time: {
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss'
+                            }
+                        }
+					}],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                        }
+                    }]
+                }
+            }
+        });
+        var disk_ctx = document.getElementById('diskio-chart').getContext('2d');
+        var diskChart = new Chart(disk_ctx, {
+            type: 'line',
+            data: {
+                labels: time_list,
+                datasets: [{
+                    label: 'Read',
+                    data: disk_in,
+                    borderWidth: 1,
+                    backgroundColor: color(window.chartColors['blue']).alpha(0.5).rgbString(),
+					borderColor: window.chartColors['blue'],
+					fill: false,
+                },
+                {
+                    label: 'Write',
+                    data: disk_out,
+                    borderWidth: 1,
+                    backgroundColor: color(window.chartColors['red']).alpha(0.5).rgbString(),
+					borderColor: window.chartColors['red'],
+					fill: false,
+                },
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+						type: 'time',
+						distribution: 'series',
+						ticks: {
+							source: 'data',
+							autoSkip: true
+						},
+						time: {
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss'
+                            }
+                        }
+					}],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+        var network_ctx = document.getElementById('networkio-chart').getContext('2d');
+        var networkChart = new Chart(network_ctx, {
+            type: 'line',
+            data: {
+                labels: time_list,
+                datasets: [{
+                    label: 'Read',
+                    data: network_in,
+                    borderWidth: 1,
+                    backgroundColor: window.chartColors['blue'],
+					borderColor: window.chartColors['blue'],
+					fill: false,
+                },
+                {
+                    label: 'Write',
+                    data: network_out,
+                    borderWidth: 1,
+                    backgroundColor: window.chartColors['red'],
+					borderColor: window.chartColors['red'],
+					fill: false,
+                },
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+						type: 'time',
+						distribution: 'series',
+						ticks: {
+							source: 'data',
+							autoSkip: true
+						},
+						time: {
+                            displayFormats: {
+                                millisecond: 'HH:mm:ss'
+                            }
+                        }
+					}],
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+version: '3.3'
+services:
+  weather-station:
+    # will build ./docker/Dockerfile
+    build:
+      dockerfile: ./docker/Dockerfile
+      context: .
+    ports:
+     - "8000:6010"
+

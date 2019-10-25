@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="">
+    <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="Update">
+      <change beforePath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" beforeDir="false" afterPath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/SensorTagDetector.py" beforeDir="false" afterPath="$PROJECT_DIR$/SensorTagDetector.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/conf.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../weather-station/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/conf.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../weather-station/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../weather-station/templates/weather.html" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/templates/weather.html" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -187,7 +192,14 @@
       <option name="project" value="LOCAL" />
       <updated>1568895920430</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Update configuration for new Mainflux server">
+      <created>1571757661664</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1571757661664</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -210,6 +222,7 @@
     <MESSAGE value="Add feature: checking MAC address before connecting. Add the db configuration." />
     <MESSAGE value="Refactor code for detecting mac address" />
     <MESSAGE value="Disable redis messages." />
-    <option name="LAST_COMMIT_MESSAGE" value="Disable redis messages." />
+    <MESSAGE value="Update configuration for new Mainflux server" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update configuration for new Mainflux server" />
   </component>
 </project>

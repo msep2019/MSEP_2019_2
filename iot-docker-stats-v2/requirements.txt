@@ -1,0 +1,6 @@
+flask
+docker
+Flask-SocketIO
+schedule
+pymongo
+python-dateutil
