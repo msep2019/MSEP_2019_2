@@ -3,7 +3,9 @@
 */
 const DockerCompose = require('docker-compose');
 const YamlValidator = require('yaml-validator');
+const YAML = require('yamljs');
 var fs = require('fs');
+const validUrl = require('valid-url');
 class DaemonClass {
     constructor(_web3, _contractInstance, _addrOwner){
         this.web3 = _web3;
@@ -31,8 +33,7 @@ class DaemonClass {
                 this.conductExperiment(expID, code);
             } else {
                 console.log(error);
-            }
-            
+            } 
         });
     }
 
@@ -63,8 +64,11 @@ class DaemonClass {
 
         const hostAddr = "127.0.0.1"
         const knownImages = {
-            "grafana/grafana" : hostAddr + ":3000",
-            // "lite-server" : hostAddr + ":8080",
+            //"grafana/grafana" : hostAddr + ":3000",
+            //"grafana/lin-cong": hostAddr + ":3000",
+            //"colin120/docker-test": hostAddr + ":3000",
+            "colin120/sensordata-visualization": hostAddr + ":3000",
+            // "lite-server" : hostAddr + ":8080",v
         };
 
         const Docker = require('dockerode');
@@ -124,20 +128,34 @@ class DaemonClass {
         // } else {
         //     result = "Couldn't find the required experiment code at the specified location";
         // }
+        // check if code is an URL, yes, use HTTP client to read the content
+        // var realContent = retrieveURLCOntent()
+        // If No, realContent = _code
+        
+        if (validUrl.isUri(_code)){
+           
+        } 
+
         var experimentFolder = "./experiments/" + this.web3.utils.bytesToHex(_expID);
+
         fs.mkdir(experimentFolder,  function(err){
             if(err) {
                 return console.log(err);
             }
             console.log("The directory was created!");
         });
+
         fs.writeFile(experimentFolder + "/docker-compose.yml", _code, function(err) {
             if(err) {
-                return console.log(err);
+                //console.log("1==========");
+                return console.log(err + "-------") ;
             }
             console.log("The file was saved!");
         })
 
+
+
+        //console.log("2==========");
         // Default options
         const options = {
             log: false,
@@ -145,40 +163,29 @@ class DaemonClass {
             onWarning: null,
             writeJson: false
         };
+
         const validator = new YamlValidator(options);
         validator.validate([experimentFolder + "/docker-compose.yml"]);
+        //console.log("3==========");
         console.log(validator.report());
-        // DockerCompose.upAll({ cwd: experimentFolder, log: true })
-        //     .then(function(result) {
-        //         console.log("---- Output ----");
-        //         console.log(result);
-        //         if (result.statusCode == 0) {
-        //             console.log('done');
-        //             console.log(result.out);
-        //         } else {
-        //             console.log('error');
-        //             console.log(result.err);
-        //         }
+        //console.log("4==========");
 
-        //     }).catch(function(result) {
-        //         console.log("---- Output ----");
-        //         console.log(result);
-        //         if (result.statusCode == 0) {
-        //             console.log('done');
-        //             console.log(result.out);
-        //         } else {
-        //             console.log('error');
-        //             console.log(result.err);
-        //         }
-        //     });
-                
+        DockerCompose.upAll({ cwd:'.', log: true})
+            .then(
+                () => {
+                    console.log('done')
+                },
+                err => { console.log("something went wrong" , err.message)}
+            );
+
+      
         
 
         // VERSION 0.1 USE THIS MECHANISM TO KICKSTART THE ASYNC RESPONSE.
         // IN FUTURE VERSION, THE COLLECT RESULT WILL BE CALLED WHEN THE EXPERIMENT IS DONE.
         setTimeout((this.collectResult).bind(this), 3000, _expID, result);
     }
-
+    
     // FIXME: Version 0.1 only return the address to access a container, which is hardcoded. 
     collectResult(_expID, _result) {
         console.log("\nInside collectResult method:");
@@ -203,6 +210,8 @@ class DaemonClass {
             // console.log(receipt);
         });
     }
+
+ 
 }
 
 // module.exports.TestSiteDaemon = DaemonClass

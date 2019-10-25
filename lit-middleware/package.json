@@ -16,7 +16,9 @@
   "dependencies": {
     "docker-compose": "^0.22.2",
     "dockerode": "^3.0.1",
+    "valid-url": "^1.0.9",
     "web3": "^1.2.1",
-    "yaml-validator": "^2.2.0"
+    "yaml-validator": "^2.2.0",
+    "yamljs": "^0.3.0"
   }
 }
