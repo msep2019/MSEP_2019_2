@@ -103,7 +103,7 @@ class TrackingContainerThread(threading.Thread):
             print(container.id)
             if container.id in threads:
                 # Get running time
-                if time.time() - container_start_time[container.id] > 30:
+                if time.time() - container_start_time[container.id] > 900:
                     threads[container.id].stop()
                     threads.pop(container.id)
                     container_start_time.pop(container.id)
@@ -115,33 +115,36 @@ class TrackingContainerThread(threading.Thread):
                 thread.start()
                 # stats = container.stats(stream=False)
 
+
 class ContainerStatsCollectorThread(threading.Thread):
     _container = None
     _stopFlag = False
+
     def __init__(self, container):
         threading.Thread.__init__(self)
         self._container = container
 
     def run(self):
+        previous_stat = {}
         for stat in self._container.stats(stream=True, decode=True):
             if not self._stopFlag:
                 print('In thread ' + self._container.id)
-                result = dockerStatsDb.stats.insert_one(self.generate_container_stats(self._container.name, stat))
-                print(result)
-                time.sleep(2)
+                dockerStatsDb.stats.insert_one(self.generate_container_stats(self._container.name, stat, previous_stat))
+                time.sleep(5)
+                previous_stat = stat
             else:
                 break
 
     def stop(self):
         self._stopFlag = True
 
-    def generate_container_stats(self, container_name, stat):
+    def generate_container_stats(self, container_name, stat, previous_stat):
         print(stat)
         result = {}
         result['container_name'] = container_name
         result['container_id'] = stat['id']
         result['read_time'] = dateutil.parser.parse(stat['read'])
-        result['cpu_percentage'] = calculate_cpu_percent(stat)
+        result['cpu_percentage'] = calculate_cpu_percent(stat, previous_stat)
         result['mem_usage'] = stat['memory_stats']['usage']
         result['mem_max_usage'] = stat['memory_stats']['max_usage']
         result['mem_limit'] = stat['memory_stats']['limit']
@@ -183,7 +186,7 @@ def get_container_stats(container_id):
     # docker_client = docker.from_env()
     # container = docker_client.containers.get(container_id)
     # return jsonify(generate_container_stats(container))
-    stats = dockerStatsDb.stats.find({'container_id':container_id})
+    stats = dockerStatsDb.stats.find({'container_id':container_id}).sort("read_time")
     json_stats = dumps(stats, json_options=RELAXED_JSON_OPTIONS)
     stats_array = json.loads(json_stats)
     return render_template('container-stats.html', container_id=container_id, stats=stats_array)
@@ -229,7 +232,8 @@ def getContainerStats(container_id, sid):
         stats = container.stats(stream=False)
         print(stats)
         final_stats = {}
-        final_stats['cpu_percentage'] = calculate_cpu_percent(stats)
+        final_stats['cpu_percentage'] = calculate_cpu_percent(stats, previous_stats)
+        previous_stats = stats
         # client_sid[self.threadID].emit("stats", json.dumps(final_stats))
         socketio.emit("stats", json.dumps(final_stats), room=request.sid, namespace="/stats")
     # data_thread = RetrievingDataThread(request.sid, "Thead-" + request.sid, container_id)
@@ -279,21 +283,19 @@ def test_disconnect():
 #     return senml_message
 
 
-def calculate_cpu_percent(data):
-    cpu_count = len(data["cpu_stats"]["cpu_usage"]["percpu_usage"])
+def calculate_cpu_percent(data, previous_data):
+    if not data or not previous_data:
+        return 0
+    # cpu_count = len(data["cpu_stats"]["cpu_usage"]["percpu_usage"])
+    cpu_count = data["cpu_stats"]["online_cpus"]
     cpu_percent = 0.0
     cpu_delta = float(data["cpu_stats"]["cpu_usage"]["total_usage"]) - \
-                float(data["precpu_stats"]["cpu_usage"]["total_usage"])
+                float(previous_data["cpu_stats"]["cpu_usage"]["total_usage"])
 
-    previous_system_cpu_usage = 0
-    if "system_cpu_usage" in data["precpu_stats"]:
-        previous_system_cpu_usage = float(data["precpu_stats"]["system_cpu_usage"])
-
-    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - previous_system_cpu_usage
+    system_delta = float(data["cpu_stats"]["system_cpu_usage"]) - float(previous_data["cpu_stats"]["system_cpu_usage"])
     if system_delta > 0.0:
         cpu_percent = cpu_delta / system_delta * 100.0 * cpu_count
     return cpu_percent
-
 
 def generate_container_stats(container):
     result = {}

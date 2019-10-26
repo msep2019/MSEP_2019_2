@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="Update">
+    <list default="true" id="f80fe50f-07d9-47f6-b815-c523b233302e" name="Default Changelist" comment="Update sensor database">
+      <change afterPath="$PROJECT_DIR$/../weather-station/static/images/pressure.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" beforeDir="false" afterPath="$PROJECT_DIR$/../iot-docker-stats-v2/iot-docker-stats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" beforeDir="false" afterPath="$PROJECT_DIR$/../lit-middleware/TestSiteDaemon.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/conf.ini" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../weather-station/apps.py" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/apps.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../weather-station/conf.ini" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/conf.ini" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../weather-station/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/docker-compose.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../weather-station/templates/weather.html" beforeDir="false" afterPath="$PROJECT_DIR$/../weather-station/templates/weather.html" afterDir="false" />
@@ -199,7 +200,14 @@
       <option name="project" value="LOCAL" />
       <updated>1571757661664</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="Add datastream for different types of sensors.">
+      <created>1571966260847</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1571966260847</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -223,6 +231,7 @@
     <MESSAGE value="Refactor code for detecting mac address" />
     <MESSAGE value="Disable redis messages." />
     <MESSAGE value="Update configuration for new Mainflux server" />
-    <option name="LAST_COMMIT_MESSAGE" value="Update configuration for new Mainflux server" />
+    <MESSAGE value="Add datastream for different types of sensors." />
+    <option name="LAST_COMMIT_MESSAGE" value="Add datastream for different types of sensors." />
   </component>
 </project>

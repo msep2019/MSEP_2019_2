@@ -6,6 +6,9 @@ const YamlValidator = require('yaml-validator');
 const YAML = require('yamljs');
 var fs = require('fs');
 const validUrl = require('valid-url');
+const Docker = require('dockerode');
+const docker = new Docker();
+var configMW = JSON.parse(fs.readFileSync("./mw-config.json").toString());
 class DaemonClass {
     constructor(_web3, _contractInstance, _addrOwner){
         this.web3 = _web3;
@@ -71,9 +74,8 @@ class DaemonClass {
             // "lite-server" : hostAddr + ":8080",v
         };
 
-        const Docker = require('dockerode');
-        const docker = new Docker();
-        let result = "";
+        
+        let result = {};
 
         // if (_code in knownImages) {
             /*FIXME: Docker by itself does not allow the flexibility and complexity necessary to run an experiment.
@@ -140,7 +142,8 @@ class DaemonClass {
 
         fs.mkdir(experimentFolder,  function(err){
             if(err) {
-                return console.log(err);
+                console.log(err);
+                return;
             }
             console.log("The directory was created!");
         });
@@ -148,7 +151,9 @@ class DaemonClass {
         fs.writeFile(experimentFolder + "/docker-compose.yml", _code, function(err) {
             if(err) {
                 //console.log("1==========");
-                return console.log(err + "-------") ;
+                console.log(err + "-------") ;
+                _result['status'] = 1;
+                return;
             }
             console.log("The file was saved!");
         })
@@ -170,12 +175,17 @@ class DaemonClass {
         console.log(validator.report());
         //console.log("4==========");
 
-        DockerCompose.upAll({ cwd:'.', log: true})
+        DockerCompose.upAll({ cwd:experimentFolder, log: true})
             .then(
                 () => {
                     console.log('done')
+                    result['status'] = 0;
                 },
-                err => { console.log("something went wrong" , err.message)}
+                err => {
+                    console.log("something went wrong" , err)
+                    result['status'] = 1;
+                    result['message'] = err;
+                }
             );
 
       
@@ -183,17 +193,43 @@ class DaemonClass {
 
         // VERSION 0.1 USE THIS MECHANISM TO KICKSTART THE ASYNC RESPONSE.
         // IN FUTURE VERSION, THE COLLECT RESULT WILL BE CALLED WHEN THE EXPERIMENT IS DONE.
-        setTimeout((this.collectResult).bind(this), 3000, _expID, result);
+        setTimeout((this.collectResult).bind(this), 10000, _expID, result);
     }
     
     // FIXME: Version 0.1 only return the address to access a container, which is hardcoded. 
     collectResult(_expID, _result) {
         console.log("\nInside collectResult method:");
         console.log("ExpID:" + this.web3.utils.bytesToHex(_expID));
-
+        
+        // List containers base on name
+        var tmpString = this.web3.utils.bytesToHex(_expID);
+        
+        _result['containers'] = {};
+        docker.listContainers({filters:{name:[tmpString]}}).then(containers => {
+            console.log("List deployed containers");
+            console.log(containers);
+            containers.forEach(container => {
+                var tmpInfo = {};
+                tmpInfo['name'] = container.Names[0];
+                var serviceURLs = [];
+                // Get all ports
+                container.Ports.forEach(function(port) {
+                    if (!isNaN(port.PublicPort)) {
+                        var tmpURL = configMW['server_host'] + ":" + port.PublicPort;
+                        serviceURLs.push(tmpURL);
+                    }
+                });
+                
+                tmpInfo['service_urls'] = serviceURLs;
+                // Return the URL of statistic tracking for this container.
+                // Use the short version of container id
+                tmpInfo['statistic_url'] = configMW['statistic_service'] + "/" + container.Id;   
+                _result['containers'][container.Image] = tmpInfo;                 
+            })
+        });    
         // VERSION 0.1 HAVE HARDCODED RESULT. IT IS ONLY FOR DEMONSTRATION PURPOSE
         // let result = "http://127.0.0.1:5000";
-        this.reportExperimentResult(_expID, _result);
+        setTimeout((this.reportExperimentResult).bind(this), 5000, _expID, _result);
     }
 
     reportExperimentResult(_expID, _result) {
@@ -202,7 +238,7 @@ class DaemonClass {
         console.log("Exp result: " + _result);
 
         // Submit the result back to the smart contract
-        this.contractInstance.methods.updateExperimentResult(this.web3.utils.bytesToHex(_expID), _result).send({
+        this.contractInstance.methods.updateExperimentResult(this.web3.utils.bytesToHex(_expID), JSON.stringify(_result)).send({
             from : this.addrOwner,
             gas : 3000000,
         }).then((receipt) => {
