@@ -1,9 +1,7 @@
 {
-    "ownerAcc" : "0xE1620F73B30213175e3b07A6AfD890f3B6b667d1",
+    "ownerAcc" : "0x4786021c5BE61ebf75F76266d227684751bF940C",
     "addrTestSite" : "",
-    "addrLIT" : "0x1d00523b820fFF8AC51480D687b0fEb1799B2227",
-    "addrRPC" : "ws://localhost:7545",
-    "addrContractArtifact" : "./",
-    "server_host": "http://127.0.0.1",
-    "statistic_service": "http://localhost:5000/stats/containers"
+    "addrLIT" : "0xDC0AfDc52683df220937739D1Fdfd11E4345eFeA",
+    "addrRPC" : "http://127.0.0.1:7545",
+    "addrContractArtifact" : "./"
 }

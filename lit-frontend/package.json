@@ -12,5 +12,8 @@
     "lite-server"
   ],
   "author": "msep_group2",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "npx": "^10.2.0"
+  }
 }
