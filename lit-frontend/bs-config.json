@@ -1,5 +1,5 @@
 {
-    "port" : 9001,
+    "port" : 9000,
     "files" : ["./**/*.{html,htm,css,js}"],
     "server" : {"baseDir" : "./"}    
 }

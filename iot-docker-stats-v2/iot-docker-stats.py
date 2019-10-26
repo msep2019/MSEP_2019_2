@@ -104,7 +104,8 @@ class TrackingContainerThread(threading.Thread):
             if container.id in threads:
                 # Get running time
                 if time.time() - container_start_time[container.id] > 900:
-                    threads[container.id].stop()
+                    thread = threads[container.id]
+                    thread.stop()
                     threads.pop(container.id)
                     container_start_time.pop(container.id)
                     container.stop()
@@ -119,21 +120,23 @@ class TrackingContainerThread(threading.Thread):
 class ContainerStatsCollectorThread(threading.Thread):
     _container = None
     _stopFlag = False
+    _start_time = None
 
     def __init__(self, container):
         threading.Thread.__init__(self)
         self._container = container
+        self._start_time = time.time()
 
     def run(self):
         previous_stat = {}
         for stat in self._container.stats(stream=True, decode=True):
-            if not self._stopFlag:
+            if not self._stopFlag and (time.time() - self._start_time < 900) :
                 print('In thread ' + self._container.id)
                 dockerStatsDb.stats.insert_one(self.generate_container_stats(self._container.name, stat, previous_stat))
                 time.sleep(5)
                 previous_stat = stat
             else:
-                break
+                return
 
     def stop(self):
         self._stopFlag = True

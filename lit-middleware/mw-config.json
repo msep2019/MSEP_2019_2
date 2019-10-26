@@ -1,7 +1,10 @@
 {
-    "ownerAcc" : "0x4786021c5BE61ebf75F76266d227684751bF940C",
+    "ownerAcc" : "0xE1620F73B30213175e3b07A6AfD890f3B6b667d1",
     "addrTestSite" : "",
-    "addrLIT" : "0xDC0AfDc52683df220937739D1Fdfd11E4345eFeA",
+    "addrLIT" : "0x1d00523b820fFF8AC51480D687b0fEb1799B2227",
     "addrRPC" : "http://127.0.0.1:7545",
-    "addrContractArtifact" : "./"
+    "addrContractArtifact" : "./",
+    "statistic_service":"http://127.0.0.1:5000/stats/containers",
+    "server_host":"http://127.0.0.1"
+
 }
