@@ -6,5 +6,5 @@ services:
       dockerfile: ./docker/Dockerfile
       context: .
     ports:
-     - "8000:6010"
+     - "6010:8000"
 

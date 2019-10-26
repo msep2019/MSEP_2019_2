@@ -8,6 +8,7 @@ import dateutil.parser
 import urllib.request
 import urllib.parse
 import requests
+import math
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -58,9 +59,16 @@ def get_sensor_data():
     response = requests.get(humidity_url)
     humidity_data = response.json()
 
+    # Get pressure data
+    pressure_url = config['restful-server']['service_url'].replace("datastream_id", config['restful-server'][
+        'pressure_datastream'])
+    response = requests.get(pressure_url)
+    pressure_data = response.json()
+
     light_value = light_data[0]['result']
     humidity_value = humidity_data[0]['result']
     temperature_value = temperature_data[0]['result']
+    pressure_value = pressure_data[0]['result']
 
     final_result['temperature'] = temperature_value
     if highest_temp == 0:
@@ -78,6 +86,7 @@ def get_sensor_data():
     final_result['lowest_temp'] = lowest_temp
     final_result['light'] = light_value
     final_result['humidity'] = humidity_value
+    final_result['pressure'] = pressure_value
     chance_to_rain_value = calculate_chance_to_rain(humidity_value, light_value, temperature_value)
     final_result['chance_to_rain'] = chance_to_rain_value
     # TODO: calculate wind speed based on acceleration and gyroscope
@@ -85,7 +94,14 @@ def get_sensor_data():
     final_result['wind'] = wind_value
     final_result['highest_wind'] = 40
     final_result['lowest_wind'] = 5
-    final_result['suggestion'] = suggest(humidity_value, chance_to_rain_value, light_value, temperature_value, wind_value)
+
+
+    suggestion = suggest(humidity_value, chance_to_rain_value, light_value, temperature_value, wind_value)
+    max_acc_diff = calculate_max_acceleration_diff()
+    if max_acc_diff > 3:
+        suggestion = suggestion + "\n" + "The sensor is dropped or there is an earthquake. \n"
+
+    final_result['suggestion'] = suggestion
     return jsonify(final_result)
 
 
@@ -105,6 +121,46 @@ def calculate_chance_to_rain(humidity, light, temperature):
         chance_to_rain = 100
     return chance_to_rain
 
+def calculate_max_acceleration_diff():
+    # Get acceleration x data
+    acceleration_x_url = config['restful-server']['service_url'].replace("datastream_id", config['restful-server'][
+        'accelerometer_x_datastream'])
+    response = requests.get(acceleration_x_url)
+    acceleration_x_data = response.json()
+    max_difference_x = 0
+    previous_value = 0
+    for point in acceleration_x_data:
+        diff = abs(point['result'] - previous_value)
+        previous_value = point['result']
+        if max_difference_x < diff:
+            max_difference_x = diff
+
+    # Get acceleration y data
+    acceleration_y_url = config['restful-server']['service_url'].replace("datastream_id", config['restful-server'][
+        'accelerometer_y_datastream'])
+    response = requests.get(acceleration_y_url)
+    acceleration_y_data = response.json()
+    max_difference_y = 0
+    previous_value = 0
+    for point in acceleration_y_data:
+        diff = abs(point['result'] - previous_value)
+        previous_value = point['result']
+        if max_difference_y < diff:
+            max_difference_y = diff
+
+    # Get acceleration z data
+    acceleration_z_url = config['restful-server']['service_url'].replace("datastream_id", config['restful-server'][
+        'accelerometer_z_datastream'])
+    response = requests.get(acceleration_z_url)
+    acceleration_z_data = response.json()
+    max_difference_z = 0
+    previous_value = 0
+    for point in acceleration_z_data:
+        diff = abs(point['result'] - previous_value)
+        previous_value = point['result']
+        if max_difference_z < diff:
+            max_difference_z = diff
+    return max_difference_x + max_difference_y + max_difference_z
 
 # A dummy suggestion
 def suggest(humidity, chance_to_rain, light, temperature, wind):

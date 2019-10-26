@@ -47,7 +47,7 @@
                     <div class="col-md-8">
                       <div class="card-body">
                           <br/>
-                          <p class="card-text"><span id="lux_value" class="text-primary"></span> Lux </p>
+                          <h5 class="card-title"><span id="lux_value" class="text-primary"></span> Lux </h5>
                       </div>
                     </div>
                   </div>
@@ -81,7 +81,7 @@
                     </div>
                   </div>
             </div>
-            <div class="col-md-6">
+            <!--<div class="col-md-6">
                 <div class="row no-gutters">
                     <div class="col-md-4">
                       <img src="/static/images/wind.png" class="card-img" alt="wind">
@@ -91,6 +91,18 @@
                           <h5 class="card-title">Now <span id="wind"></span> km/h</h5>
                           <p class="card-text">Highest <span id="highest_wind"></span> km/h</p>
                           <p class="card-text">Lowest <span id="lowest_wind"></span >km/h</p>
+                      </div>
+                    </div>
+                  </div>
+            </div>-->
+            <div class="col-md-6">
+                <div class="row no-gutters">
+                    <div class="col-md-4">
+                      <img src="/static/images/pressure.png" class="card-img" alt="pressure">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body">
+                          <h5 class="card-title">Pressure <span id="pressure"></span> kb</h5>
                       </div>
                     </div>
                   </div>
@@ -122,15 +134,13 @@
             $.getJSON({
               url: "/sensor/data",
               success: function(data) {
-                  console.log(data);
-                  $("#lux_value")[0].innerHTML = data['light'];
+                  $("#lux_value")[0].innerHTML = data['light'].toFixed(0);
                   var images = $('img[id^="light_image_"]').each(function(index) {
                     $(this).hide()
                   });
                   if (data['light'] > 150) {
                     $('#light_image_sunny').show();
                   } else if (data['light'] > 100) {
-                    console.log("Enter change to cloudy");
                     $('#light_image_cloudy').css("card-img");
                     $('#light_image_cloudy').show();
                   } else if (data['light'] > 60) {
@@ -143,10 +153,11 @@
                   $("#lowest_temp")[0].innerHTML = data['lowest_temp'];
                   $("#humidity")[0].innerHTML = data['humidity'].toFixed(0);
                   $("#chance_to_rain")[0].innerHTML = data['chance_to_rain'].toFixed(0);
-                  $("#wind")[0].innerHTML = data['wind'];
-                  $("#highest_wind")[0].innerHTML = data['highest_wind'];
-                  $("#lowest_wind")[0].innerHTML = data['lowest_wind'];
+                  //$("#wind")[0].innerHTML = data['wind'];
+                  //$("#highest_wind")[0].innerHTML = data['highest_wind'];
+                  //$("#lowest_wind")[0].innerHTML = data['lowest_wind'];
                   $("#suggestion")[0].innerHTML = data['suggestion'];
+                  $("#pressure")[0].innerHTML = data['pressure'].toFixed(0);
               },
               error: function() {
               },
